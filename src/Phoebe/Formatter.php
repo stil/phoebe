@@ -1,5 +1,5 @@
 <?php
-namespace gamesrv;
+namespace Phoebe;
 
 class Formatter
 {
