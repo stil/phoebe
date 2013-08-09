@@ -10,12 +10,15 @@ class Phoebe extends EventDispatcher
 {
     protected $client;
 
-    public function __construct(Connection $conn)
+    public function __construct()
     {
-        $client = new Client;
-        $client->addConnection($conn);
-        $client->addListener(array($this, 'onClientEvent'));
-        $this->client = $client;
+        $this->client = new Client;
+    }
+
+    public function addConnection(Connection $connection)
+    {
+        $this->client->addConnection($connection);
+        $this->client->addListener(array($this, 'onClientEvent'));
     }
 
     public function onClientEvent($message, $write, $conn, $logger)

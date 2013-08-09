@@ -13,7 +13,8 @@ $conn->setNickname('Phoebe2');
 $conn->setUsername('Phoebe');
 $conn->setRealname('Phoebe');
 
-$phoebe = new Phoebe($conn);
+$phoebe = new Phoebe;
+$phoebe->addConnection($conn);
 $phoebe->addSubscriber(new PingPongPlugin);
 //$phoebe->addSubscriber(new NickServPlugin('nickservPasword'));
 
