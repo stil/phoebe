@@ -2,6 +2,7 @@
     "name": "stil/phoebe",
     "minimum-stability": "dev",
     "require": {
+        "php": ">=5.4",
         "phergie/phergie-irc-client-react": "dev-master",
         "symfony/event-dispatcher": "2.3"
     },
