@@ -1,0 +1,13 @@
+{
+    "name": "stil/phoebe",
+    "minimum-stability": "dev",
+    "require": {
+        "phergie/phergie-irc-client-react": "dev-master",
+        "symfony/event-dispatcher": "2.3"
+    },
+    "autoload": {
+        "psr-0": {
+            "Phoebe\\": "src/"
+        }
+    }
+}
