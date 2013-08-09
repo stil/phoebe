@@ -1,7 +1,7 @@
 <?php
 namespace Phoebe\Plugin\PingPong;
 
-use Phoebe\Event;
+use Phoebe\Event\Event;
 use Phoebe\Plugin\Plugin;
 
 class PingPongPlugin extends Plugin
@@ -15,6 +15,7 @@ class PingPongPlugin extends Plugin
 
     public function onPing(Event $event)
     {
-        $event->write->ircPong($event->message['params']['all']);
+        $pongMessage = $event->getMessage()['params']['all'];
+        $event->getWriteStream()->ircPong($pongMessage);
     }
 } 

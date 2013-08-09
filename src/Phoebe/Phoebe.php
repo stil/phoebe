@@ -4,6 +4,7 @@ namespace Phoebe;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Phergie\Irc\Connection;
 use Phergie\Irc\Client\React\Client;
+use Phoebe\Event\Command;
 
 class Phoebe extends EventDispatcher
 {
@@ -19,11 +20,11 @@ class Phoebe extends EventDispatcher
 
     public function onClientEvent($message, $write, $conn, $logger)
     {
-        $event = new Event;
-        $event->message = $message;
-        $event->write = $write;
-        $event->conn = $conn;
-        $event->logger = $logger;
+        $event = new Command;
+        $event->setMessage($message);
+        $event->setWriteStream($write);
+        $event->setConnection($conn);
+        $event->setLogger($logger);
 
         $this->dispatch('cmd', $event);
         $this->dispatch('cmd.'.$message['command'], $event);

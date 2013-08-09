@@ -15,7 +15,7 @@ $conn->setRealname('Phoebe');
 
 $phoebe = new Phoebe($conn);
 $phoebe->addSubscriber(new PingPongPlugin);
-//$phoebe->addSubscriber(new NickServPlugin('****'));
+//$phoebe->addSubscriber(new NickServPlugin('nickservPasword'));
 
 while (true) {
     $phoebe->run();

@@ -1,7 +1,7 @@
 <?php
 namespace Phoebe\Plugin\NickServ;
 
-use Phoebe\Event;
+use Phoebe\Event\Event;
 use Phoebe\Plugin\Plugin;
 
 class NickServPlugin extends Plugin
@@ -21,12 +21,12 @@ class NickServPlugin extends Plugin
 
     public function onWelcome(Event $event)
     {
-        $event->write->ircPrivmsg('NickServ', 'IDENTIFY '.$this->password);
+        $event->getWriteStream()->ircPrivmsg('NickServ', 'IDENTIFY '.$this->password);
     }
 
     public function onNotice(Event $event)
     {
-        $msg = $event->message;
+        $msg = $event->getMessage();
         if (isset($msg['nick']) &&
             $msg['nick'] === 'NickServ' &&
             $msg['params']['text'] === 'Password accepted - you are now recognized.') {
