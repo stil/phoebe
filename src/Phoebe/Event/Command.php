@@ -77,8 +77,10 @@ class Command extends Event
     {
         $msg = $this->getMessage();
         
-        if (!empty($msg['targets'])) {
+        if (isset($msg['targets'][0]) && $this->isChannelName($msg['targets'][0])) {
             return $msg['targets'][0];
+        } else {
+            return $msg['nick'];
         }
     }
 
