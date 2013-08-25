@@ -32,6 +32,15 @@ class Phoebe extends EventDispatcher
         $this->connections[] = $connection;
     }
 
+    /**
+     * Returns all connections
+     * @return Phergie\Irc\Connection[]
+     */
+    public function getConnections()
+    {
+        return $this->connections;
+    }
+
     public function onMessageReceived($message, $writeStream, $connection, $logger)
     {
         $event = new MessageReceivedEvent;
