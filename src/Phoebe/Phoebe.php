@@ -2,12 +2,12 @@
 namespace Phoebe;
 
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Phergie\Irc\Connection;
 use Phergie\Irc\Client\React\Client;
-use Phoebe\Event\Command;
+use Phoebe\Event\Event;
+use Phoebe\Event\MessageReceivedEvent;
+use Phoebe\Event\MessageSentEvent;
 
-class Phoebe
+class Phoebe extends EventDispatcher
 {
     /**
      * Phergie React Client
@@ -17,106 +17,101 @@ class Phoebe
     protected $client;
 
     /**
-     * Array containing EventDispatcher objects grouped by keys
-     * 
-     * @var array
+     * Array containing Connection objects
+     * @var Phergie\Irc\Connection[]
      */
-    protected $dispatchers = array();
-
-    /**
-     * Constructor method
-     */
-    public function __construct()
-    {
-        $this->client = new Client;
-        $this->client->addListener(array($this, 'onClientEvent'));
-
-        /**
-         * Global dispatcher
-         */
-        $this->dispatchers['*'] = new EventDispatcher;
-    }
+    protected $connections = array();
 
     /**
      * Adds connection to client
-     * @param Connection $connection Instance of Phergie\Irc\Connection
-     * @param string     $id         ID of connection (NULL if doesn't matter)
+     * @param Connection $connection Connection object
      * @return void
      */
-    public function addConnection(Connection $connection, $id = null)
+    public function addConnection(Connection $connection)
     {
-        if ($id !== null) {
-            if (!isset($this->dispatchers[$id])) {
-                $this->dispatchers[$id] = new EventDispatcher;
-            }
-
-            $connection->_dispatcher = $this->dispatchers[$id];
-        }
-        $this->client->addConnection($connection);
+        $this->connections[] = $connection;
     }
 
-    /**
-     * Adds subscriber to desired connections
-     * @param EventSubscriberInterface $subscriber    Event subscriber object
-     * @param array                    $dispatcherIds Array of listened connections' IDs.
-     *                                                "*" means all connections.
-     *                                                By default it subscribes to all connections.
-     * @return void
-     */
-    public function addSubscriber(EventSubscriberInterface $subscriber, $dispatcherIds = array('*'))
+    public function onMessageReceived($message, $writeStream, $connection, $logger)
     {
-        foreach ($dispatcherIds as $id) {
-            if (isset($this->dispatchers[$id])) {
-                $this->dispatchers[$id]->addSubscriber($subscriber);
-            }
-        }
-    }
-
-    /**
-     * Adds listener to desired connections
-     * 
-     * @param string   $eventName     The event to listen on
-     * @param callable $listener      The listener
-     * @param integer  $priority      The higher this value, the earlier an event listener will be triggered in the chain (defaults to 0)
-     * @param array    $dispatcherIds Array of listened connections' IDs.
-     *                                "*" means all connections.
-     *                                By default it listens to all connections.
-     * @return void
-     */
-    public function addListener($eventName, $listener, $priority = 0, $dispatcherIds = array('*'))
-    {
-        foreach ($dispatcherIds as $id) {
-            if (isset($this->dispatchers[$id])) {
-                $this->dispatchers[$id]->addListener($eventName, $listener);
-            }
-        }
-    }
-
-    public function onClientEvent($message, $write, $conn, $logger)
-    {
-        $event = new Command;
+        $event = new MessageReceivedEvent;
         $event->setMessage($message);
-        $event->setWriteStream($write);
-        $event->setConnection($conn);
+        $event->setWriteStream($writeStream);
+        $event->setConnection($connection);
         $event->setLogger($logger);
 
-        $this->dispatchers['*']->dispatch('cmd', $event);
-        $this->dispatchers['*']->dispatch('cmd.'.$message['command'], $event);
+        $connection->dispatch('irc.received', $event);
+        $connection->dispatch('irc.received.'.$message['command'], $event);
 
-        if (isset($conn->_dispatcher)) {
-            $localDispatcher = $conn->_dispatcher;
-            $localDispatcher->dispatch('cmd', $event);
-            $localDispatcher->dispatch('cmd.'.$message['command'], $event);
-        }
+        $this->dispatch('irc.received', $event);
+        $this->dispatch('irc.received.'.$message['command'], $event);
+    }
+
+    public function onMessageSent($message, $connection, $logger)
+    {
+        $event = new MessageSentEvent;
+        $event->setMessage($message);
+        $event->setConnection($connection);
+        $event->setLogger($logger);
+
+        $connection->dispatch('irc.sent', $event);
+        $this->dispatch('irc.sent', $event);
     }
 
     /**
-     * Runs the bot
+     * Starts the bot
      * 
      * @return void
      */
     public function run()
     {
-        $this->client->run();
+        $self = $this;
+        $client = new Client;
+        
+        $client->on(
+            'irc.received',
+            array($this, 'onMessageReceived')
+        );
+
+        $client->on(
+            'irc.sent',
+            array($this, 'onMessageSent')
+        );
+
+        foreach (array('before', 'after') as $eventType) {
+            $client->on(
+                'connect.'.$eventType.'.all',
+                function ($connections) use ($self, $eventType) {
+                    $event = new Event;
+                    $event->connections = $connections;
+                    $self->dispatch('connect.'.$eventType.'.all', $event);
+                }
+            );
+
+            $client->on(
+                'connect.'.$eventType.'.each',
+                function ($connection) use ($self, $eventType) {
+                    $event = new Event;
+                    $event->connection = $connection;
+                    $self->dispatch('connect.'.$eventType.'.each', $event);
+                    $connection->dispatch('connect.'.$eventType.'.each', $event);
+                }
+            );
+        }
+
+        $client->on(
+            'connect.error',
+            function ($message, $connection, $logger) use ($self) {
+                $event = new Event;
+                $event->connection = $connection;
+                $event->logger     = $logger;
+                $event->message    = $message;
+                $self->dispatch('connect.error', $event);
+                $connection->dispatch('connect.error', $event);
+            }
+        );
+
+        $this->client = $client;
+        $this->client->run($this->connections);
     }
 }

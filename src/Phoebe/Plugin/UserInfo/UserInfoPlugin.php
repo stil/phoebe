@@ -2,7 +2,7 @@
 namespace Phoebe\Plugin\UserInfo;
 
 use Phoebe\Event\Event;
-use Phoebe\Plugin\Plugin;
+use Phoebe\Plugin\PluginInterface;
 
 /**
  * Provides an API for querying information on users.
@@ -10,7 +10,7 @@ use Phoebe\Plugin\Plugin;
  * Modified by stil
  */
 
-class UserInfoPlugin extends Plugin
+class UserInfoPlugin implements PluginInterface
 {
     const REGULAR = 1;
     const VOICE   = 2;
@@ -22,13 +22,13 @@ class UserInfoPlugin extends Plugin
     public static function getSubscribedEvents()
     {
         return array(
-            'cmd.PRIVMSG'  => array('onPrivmsg', 0),
-            'cmd.MODE' => array('onMode', 0),
-            'cmd.JOIN' => array('onJoin', 0),
-            'cmd.PART' => array('onPart', 0),
-            'cmd.QUIT' => array('onQuit', 0),
-            'cmd.NICK' => array('onNick', 0),
-            'cmd.353'  => array('onNameReply', 0)
+            'irc.received.PRIVMSG'  => array('onPrivmsg', 0),
+            'irc.received.MODE' => array('onMode', 0),
+            'irc.received.JOIN' => array('onJoin', 0),
+            'irc.received.PART' => array('onPart', 0),
+            'irc.received.QUIT' => array('onQuit', 0),
+            'irc.received.NICK' => array('onNick', 0),
+            'irc.received.353'  => array('onNameReply', 0)
         );
     }
 
@@ -87,21 +87,21 @@ class UserInfoPlugin extends Plugin
             $mode = null;
 
             switch ($char) {
-            case 'q':
-                $mode = self::OWNER;
-                break;
-            case 'a':
-                $mode = self::ADMIN;
-                break;
-            case 'o':
-                $mode = self::OP;
-                break;
-            case 'h':
-                $mode = self::HALFOP;
-                break;
-            case 'v':
-                $mode = self::VOICE;
-                break;
+                case 'q':
+                    $mode = self::OWNER;
+                    break;
+                case 'a':
+                    $mode = self::ADMIN;
+                    break;
+                case 'o':
+                    $mode = self::OP;
+                    break;
+                case 'h':
+                    $mode = self::HALFOP;
+                    break;
+                case 'v':
+                    $mode = self::VOICE;
+                    break;
             }
 
             if (!empty($mode)) {

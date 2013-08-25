@@ -3,6 +3,6 @@ namespace Phoebe\Plugin;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-abstract class Plugin implements EventSubscriberInterface
+interface PluginInterface extends EventSubscriberInterface
 {
 }

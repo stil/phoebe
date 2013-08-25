@@ -118,12 +118,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phergie/phergie-irc-client-react.git",
-                "reference": "6f46dafe4c60f23679ebad5c2897ea9635ad06ce"
+                "reference": "8243cee478d3c5c12c6efd1b2ad4bef473a4ba1e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phergie/phergie-irc-client-react/zipball/6f46dafe4c60f23679ebad5c2897ea9635ad06ce",
-                "reference": "6f46dafe4c60f23679ebad5c2897ea9635ad06ce",
+                "url": "https://api.github.com/repos/phergie/phergie-irc-client-react/zipball/8243cee478d3c5c12c6efd1b2ad4bef473a4ba1e",
+                "reference": "8243cee478d3c5c12c6efd1b2ad4bef473a4ba1e",
                 "shasum": ""
             },
             "require": {
@@ -151,7 +151,7 @@
                 "irc",
                 "react"
             ],
-            "time": "2013-08-13 02:34:18"
+            "time": "2013-08-25 04:36:26"
         },
         {
             "name": "phergie/phergie-irc-connection",
@@ -159,12 +159,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phergie/phergie-irc-connection.git",
-                "reference": "1.1.0"
+                "reference": "96521084b6931df13cbcd77a40f9fd7c4cd79d18"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phergie/phergie-irc-connection/zipball/1.1.0",
-                "reference": "1.1.0",
+                "url": "https://api.github.com/repos/phergie/phergie-irc-connection/zipball/96521084b6931df13cbcd77a40f9fd7c4cd79d18",
+                "reference": "96521084b6931df13cbcd77a40f9fd7c4cd79d18",
                 "shasum": ""
             },
             "require": {
@@ -595,12 +595,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-timer.git",
-                "reference": "1.0.5"
+                "reference": "19689d4354b295ee3d8c54b4f42c3efb69cbc17c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-timer/zipball/1.0.5",
-                "reference": "1.0.5",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-timer/zipball/19689d4354b295ee3d8c54b4f42c3efb69cbc17c",
+                "reference": "19689d4354b295ee3d8c54b4f42c3efb69cbc17c",
                 "shasum": ""
             },
             "require": {
@@ -822,12 +822,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Yaml.git",
-                "reference": "4d80b4f4c447e8ad7cab8b3afb0b51aad0431f7f"
+                "reference": "d717edb3fedd370baa5e2237641680d611d1c6a9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Yaml/zipball/4d80b4f4c447e8ad7cab8b3afb0b51aad0431f7f",
-                "reference": "4d80b4f4c447e8ad7cab8b3afb0b51aad0431f7f",
+                "url": "https://api.github.com/repos/symfony/Yaml/zipball/d717edb3fedd370baa5e2237641680d611d1c6a9",
+                "reference": "d717edb3fedd370baa5e2237641680d611d1c6a9",
                 "shasum": ""
             },
             "require": {
@@ -860,7 +860,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "http://symfony.com",
-            "time": "2013-07-21 20:19:01"
+            "time": "2013-08-23 15:14:52"
         }
     ],
     "aliases": [

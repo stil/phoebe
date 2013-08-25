@@ -2,14 +2,14 @@
 namespace Phoebe\Plugin\PingPong;
 
 use Phoebe\Event\Event;
-use Phoebe\Plugin\Plugin;
+use Phoebe\Plugin\PluginInterface;
 
-class PingPongPlugin extends Plugin
+class PingPongPlugin implements PluginInterface
 {
     public static function getSubscribedEvents()
     {
         return array(
-            'cmd.PING' => array('onPing', 0)
+            'irc.received.PING' => array('onPing', 0)
         );
     }
 
@@ -18,4 +18,4 @@ class PingPongPlugin extends Plugin
         $pongMessage = $event->getMessage()['params']['all'];
         $event->getWriteStream()->ircPong($pongMessage);
     }
-} 
+}

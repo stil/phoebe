@@ -1,11 +1,10 @@
 <?php
 namespace Phoebe\Event;
 
-use Phergie\Irc\Client\React\WriteStream;
-use Phergie\Irc\Connection;
+use Phoebe\Connection;
 use Monolog\Logger;
 
-class Command extends Event
+abstract class AbstractMessageEvent extends Event
 {
     protected $message;
     protected $write;
@@ -20,16 +19,6 @@ class Command extends Event
     public function getMessage()
     {
         return $this->message;
-    }
-
-    public function setWriteStream(WriteStream $writeStream)
-    {
-        $this->write = $writeStream;
-    }
-
-    public function getWriteStream()
-    {
-        return $this->write;
     }
 
     public function setConnection(Connection $connection)
