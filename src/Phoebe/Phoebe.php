@@ -17,62 +17,10 @@ class Phoebe extends EventDispatcher
     protected $client;
 
     /**
-     * Array containing Connection objects
-     * @var Phergie\Irc\Connection[]
-     */
-    protected $connections = array();
-
-    /**
-     * Adds connection to client
-     * @param Connection $connection Connection object
+     * Prepares neccessary objects and adds listeners to events
      * @return void
      */
-    public function addConnection(Connection $connection)
-    {
-        $this->connections[] = $connection;
-    }
-
-    /**
-     * Returns all connections
-     * @return Phergie\Irc\Connection[]
-     */
-    public function getConnections()
-    {
-        return $this->connections;
-    }
-
-    public function onMessageReceived($message, $writeStream, $connection, $logger)
-    {
-        $event = new MessageReceivedEvent;
-        $event->setMessage($message);
-        $event->setWriteStream($writeStream);
-        $event->setConnection($connection);
-        $event->setLogger($logger);
-
-        $connection->dispatch('irc.received', $event);
-        $connection->dispatch('irc.received.'.$message['command'], $event);
-
-        $this->dispatch('irc.received', $event);
-        $this->dispatch('irc.received.'.$message['command'], $event);
-    }
-
-    public function onMessageSent($message, $connection, $logger)
-    {
-        $event = new MessageSentEvent;
-        $event->setMessage($message);
-        $event->setConnection($connection);
-        $event->setLogger($logger);
-
-        $connection->dispatch('irc.sent', $event);
-        $this->dispatch('irc.sent', $event);
-    }
-
-    /**
-     * Starts the bot
-     * 
-     * @return void
-     */
-    public function run()
+    public function __construct()
     {
         $self = $this;
         $client = new Client;
@@ -121,6 +69,51 @@ class Phoebe extends EventDispatcher
         );
 
         $this->client = $client;
-        $this->client->run($this->connections);
+    }
+
+    /**
+     * Adds connection to client
+     * @param Connection $connection Connection object
+     * @return void
+     */
+    public function addConnection(Connection $connection)
+    {
+        $this->client->addConnection($connection);
+    }
+
+    public function onMessageReceived($message, $writeStream, $connection, $logger)
+    {
+        $event = new MessageReceivedEvent;
+        $event->setMessage($message);
+        $event->setWriteStream($writeStream);
+        $event->setConnection($connection);
+        $event->setLogger($logger);
+
+        $connection->dispatch('irc.received', $event);
+        $connection->dispatch('irc.received.'.$message['command'], $event);
+
+        $this->dispatch('irc.received', $event);
+        $this->dispatch('irc.received.'.$message['command'], $event);
+    }
+
+    public function onMessageSent($message, $connection, $logger)
+    {
+        $event = new MessageSentEvent;
+        $event->setMessage($message);
+        $event->setConnection($connection);
+        $event->setLogger($logger);
+
+        $connection->dispatch('irc.sent', $event);
+        $this->dispatch('irc.sent', $event);
+    }
+
+    /**
+     * Starts the bot
+     * @param  Connection[] $connections Array containing connections to add
+     * @return void
+     */
+    public function run($connections = array())
+    {
+        $this->client->run($connections);
     }
 }
