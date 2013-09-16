@@ -113,6 +113,20 @@ $events->addSubscriber(new PingPongPlugin());
 $phoebe->run();
 ```
 
+Event object
+============
+
+Below you can check which methods are available at different events
+
+| Method / event name         | `irc.received.*` | `irc.sent` | `connection.error` |
+| --------------------------: |:----------------:| :---------:| :-----------------:|
+| `getMessage()`              | yes              | yes        | yes                |
+| `getConnectionManager()`    | yes              | yes        | yes                |
+| `getConnection()`           | yes              | yes        | yes                |
+| `getTimers()`               | yes              | yes        | yes                |
+| `getLogger()`               | yes              | yes        | yes                |
+| `getWriteStream()`          | yes              | no         | no                 |          
+
 Creating your own plugins
 =========================
 
