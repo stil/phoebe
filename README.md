@@ -1,13 +1,20 @@
 Phoebe
 ======
-
-Phoebe is IRC bot skeleton based on Phergie components.
+Phoebe is an IRC bot skeleton based on Phergie components.
 The main advantage over Phergie 2 is its flexibility, which could be achieved with PHP namespaces.
 
-Examples of use
-===============
+####Table of contents
+* [Examples of use](#examples-of-use)
+ * [Simple Phoebe bot](#simple-phoebe-bot)
+ * [Multiple IRC networks](#multiple-irc-networks)
+* [Event object](#event-object)
+* [Creating custom plugins](#creating-custom-plugins)
+* [Using Timers](#using-timers)
 
-###Simple Phoebe bot example
+
+##Examples of use
+
+###Simple Phoebe bot
 ```php
 <?php
 require __DIR__.'/vendor/autoload.php';
@@ -113,10 +120,20 @@ $events->addSubscriber(new PingPongPlugin());
 $phoebe->run();
 ```
 
-Creating your own plugins
-=========================
+##Event object
+Below you can check which methods are available at different events
 
-Plugin class has just to implement getSubscribedEvents() method.
+| Method / event name         | `irc.received.*` | `irc.sent` | `connection.error` |
+| --------------------------: |:----------------:| :---------:| :-----------------:|
+| `getMessage()`              | yes              | yes        | yes                |
+| `getConnectionManager()`    | yes              | yes        | yes                |
+| `getConnection()`           | yes              | yes        | yes                |
+| `getTimers()`               | yes              | yes        | yes                |
+| `getLogger()`               | yes              | yes        | yes                |
+| `getWriteStream()`          | yes              | no         | no                 |          
+
+##Creating custom plugins
+Plugin class has just to implement `getSubscribedEvents()` method.
 
 Here is example of simple plugin:
 ```php
@@ -145,4 +162,31 @@ class HelloPlugin implements PluginInterface
         }
     }
 }
+```
+
+##Using Timers
+There are situations, when you need to delay execution of particular function. Thanks to Timers class it is very easy in Phoebe.
+
+Below you can see how to reconnect to IRC with short delay.
+```php
+$reconnect = function ($event) {
+    $hostname = $event->getConnection()->getServerHostname();
+    $event->getLogger()->debug(
+        "Connection to $hostname lost, attempting to reconnect in 15 seconds.\n"
+    );
+
+    $event->getTimers()->setTimeout(
+        function () use ($event) { // Use $event so we have access to required objects
+            $event->getLogger()->debug("Reconnecting now...\n");
+            $event->getConnectionManager()->addConnection(
+                $event->getConnection()
+            );
+        },
+        15 // Execute callback after 15 seconds
+    );
+};
+
+// Reconnect when there is connection problem
+$events->addListener('irc.received.ERROR', $reconnect);
+$events->addListener('connect.error', $reconnect);
 ```
