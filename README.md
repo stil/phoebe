@@ -2,108 +2,121 @@ Phoebe
 ======
 
 Phoebe is IRC bot skeleton based on Phergie components.
-The main advantage over Phergie is its flexibility, which could be achieved with PHP namespaces.
+The main advantage over Phergie 2 is its flexibility, which could be achieved with PHP namespaces.
 
-Getting started
+Examples of use
 ===============
 
-Example of the simplest Phoebe bot:
+###Simple Phoebe bot example
 ```php
 <?php
 require __DIR__.'/vendor/autoload.php';
 
-use Phoebe\Phoebe;
+use Phoebe\ConnectionManager;
 use Phoebe\Connection;
 use Phoebe\Event\Event;
 use Phoebe\Plugin\PingPong\PingPongPlugin;
 
-$freenode = new Connection;
+$freenode = new Connection();
 $freenode->setServerHostname('irc.freenode.net');
 $freenode->setServerPort(6667);
 $freenode->setNickname('Phoebe2');
 $freenode->setUsername('Phoebe');
 $freenode->setRealname('Phoebe');
 
-// Add PingPongPlugin to avoid being kicked from server
-$freenode->addSubscriber(new PingPongPlugin);
+// Create shortcut to EventDispatcher
+$events = $freenode->getEventDispatcher();
 
-// Join #phoebe channel on IRC welcome message
-$freenode->addListener('irc.received.001', function (Event $event) {
+// Add PingPongPlugin to avoid being kicked from server
+$events->addSubscriber(new PingPongPlugin());
+
+// Join #phoebe channel on startup
+$events->addListener('irc.received.001', function (Event $event) {
     $event->getWriteStream()->ircJoin('#phoebe');
 });
 
-$phoebe = new Phoebe;
+$phoebe = new ConnectionManager();
 $phoebe->addConnection($freenode);
 $phoebe->run();
 ```
 
-Plugins on multiple connections
-=================================
-
-Sometimes you need bot working on several IRC networks paralelly.
-You might need have different plugins on each connection. Phoebe can be easily set up to solve this problem.
-
-Look at the example:
+###Multiple IRC networks
 ```php
 <?php
 require __DIR__.'/vendor/autoload.php';
 
 use Phoebe\Connection;
-use Phoebe\Phoebe;
+use Phoebe\ConnectionManager;
 use Phoebe\Plugin\PingPong\PingPongPlugin;
-use Phoebe\Plugin\UserInfo\UserInfoPlugin;
+use Phoebe\Plugin\AutoJoin\AutoJoinPlugin;
 
-// First connection
-$rizon = new Connection;
-$rizon->setServerHostname('irc.rizon.net');
-$rizon->setServerPort(6667);
-$rizon->setNickname('Phoebe4');
-$rizon->setUsername('Phoebe');
-$rizon->setRealname('Phoebe');
+// First connection to Rizon
+// We enclose connections in functions to prevent namespace collisions
+$rizon = function () {
+    $conn = new Connection();
+    $conn->setServerHostname('irc.rizon.net');
+    $conn->setServerPort(6667);
+    $conn->setNickname('Phoebe4');
+    $conn->setUsername('Phoebe');
+    $conn->setRealname('Phoebe');
 
-// It will join channel #phoebe.rizon
-$rizon->addListener('irc.received.001', function ($event) {
-    $event->getWriteStream()->ircJoin('#phoebe.rizon');
-});
+    $events = $conn->getEventDispatcher();
 
-// Second connection
-$qn = new Connection;
-$qn->setServerHostname('irc.quakenet.org');
-$qn->setServerPort(6667);
-$qn->setNickname('Phoebe5');
-$qn->setUsername('Phoebe');
-$qn->setRealname('Phoebe');
+    // We'll join several channels on startup
+    $autoJoin = new AutoJoinPlugin();
+    $autoJoin->addChannels(
+        ['#channel1' => 'key', '#channel2', '#channel3']
+    );
+    $events->addSubscriber($autoJoin);
 
-// It will join channel #phoebe.rizon
-$qn->addListener('irc.received.001', function ($event) {
-    $event->getWriteStream()->ircJoin('#phoebe.qn');
-});
+    // Answer on "hi" with "hello, nick"
+    $events->addListener(
+        'irc.received.PRIVMSG',
+        function ($event) {
+            $msg = $event->getMessage();
+            if ($msg['params']['text'] == 'hi') {
+                $event->getWriteStream()->ircPrivmsg(
+                    $event->getSource(),
+                    'hello, '.$msg['nick']
+                );
+            }
+        }
+    );
 
-/**
- * We're creating instance of Phoebe and adding our connections
- */
-$phoebe = new Phoebe;
-$phoebe->addConnection($rizon);
-$phoebe->addConnection($qn);
+    return $conn;
+};
 
-/**
- * PingPongPlugin should listen on both connections.
- */
-$phoebe->addSubscriber(new PingPongPlugin);
+// Second connection to QuakeNet
+$qn = function () {
+    $conn = new Connection();
+    $conn->setServerHostname('irc.quakenet.org');
+    $conn->setServerPort(6667);
+    $conn->setNickname('Phoebe5');
+    $conn->setUsername('Phoebe');
+    $conn->setRealname('Phoebe');
 
-// It will join channel #phoebe on both connections.
-$phoebe->addListener('irc.received.001', function ($event) {
-    $event->getWriteStream()->ircJoin('#phoebe');
-});
+    return $conn;
+};
 
-// And start the bot
+// Now create instance of ConnectionManager and add previously prepared connections
+$phoebe = new ConnectionManager();
+$phoebe->addConnection($rizon());
+$phoebe->addConnection($qn());
+
+// You can also listen global events on ConnectionManager
+$events = $phoebe->getEventDispatcher();
+
+// PingPongPlugin will prevent us from disconnecting from server
+$events->addSubscriber(new PingPongPlugin());
+
+// We can start the bot now
 $phoebe->run();
 ```
 
 Creating your own plugins
 =========================
 
-All plugins must only implement getSubscribedEvents() method.
+Plugin class has just to implement getSubscribedEvents() method.
 
 Here is example of simple plugin:
 ```php

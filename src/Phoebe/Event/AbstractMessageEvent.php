@@ -1,46 +1,8 @@
 <?php
 namespace Phoebe\Event;
 
-use Phoebe\Connection;
-use Monolog\Logger;
-
 abstract class AbstractMessageEvent extends Event
 {
-    protected $message;
-    protected $write;
-    protected $connection;
-    protected $logger;
-
-    public function setMessage($message)
-    {
-        $this->message = $message;
-    }
-
-    public function getMessage()
-    {
-        return $this->message;
-    }
-
-    public function setConnection(Connection $connection)
-    {
-        $this->connection = $connection;
-    }
-
-    public function getConnection()
-    {
-        return $this->connection;
-    }
-
-    public function setLogger(Logger $logger)
-    {
-        $this->logger = $logger;
-    }
-
-    public function getLogger()
-    {
-        return $this->logger;
-    }
-
     /**
      * Determines whether a given string is a valid IRC channel name.
      *
