@@ -4,10 +4,9 @@ Phoebe
 Phoebe is IRC bot skeleton based on Phergie components.
 The main advantage over Phergie 2 is its flexibility, which could be achieved with PHP namespaces.
 
-Examples of use
-===============
+##Examples of use
 
-###Simple Phoebe bot example
+###Simple Phoebe bot
 ```php
 <?php
 require __DIR__.'/vendor/autoload.php';
@@ -113,9 +112,7 @@ $events->addSubscriber(new PingPongPlugin());
 $phoebe->run();
 ```
 
-Event object
-============
-
+##Event object
 Below you can check which methods are available at different events
 
 | Method / event name         | `irc.received.*` | `irc.sent` | `connection.error` |
@@ -127,10 +124,8 @@ Below you can check which methods are available at different events
 | `getLogger()`               | yes              | yes        | yes                |
 | `getWriteStream()`          | yes              | no         | no                 |          
 
-Creating your own plugins
-=========================
-
-Plugin class has just to implement getSubscribedEvents() method.
+##Creating custom plugins
+Plugin class has just to implement `getSubscribedEvents()` method.
 
 Here is example of simple plugin:
 ```php
@@ -159,4 +154,31 @@ class HelloPlugin implements PluginInterface
         }
     }
 }
+```
+
+##Using Timers
+There are situations, when you need to delay execution of particular function. Thanks to Timers class it is very easy in Phoebe.
+
+Below you can see how to reconnect to IRC with short delay.
+```php
+$reconnect = function ($event) {
+    $hostname = $event->getConnection()->getServerHostname();
+    $event->getLogger()->debug(
+        "Connection to $hostname lost, attempting to reconnect in 15 seconds.\n"
+    );
+
+    $event->getTimers()->setTimeout(
+        function () use ($event) { // Use $event so we have access to required objects
+            $event->getLogger()->debug("Reconnecting now...\n");
+            $event->getConnectionManager()->addConnection(
+                $event->getConnection()
+            );
+        },
+        15 // Execute callback after 15 seconds
+    );
+};
+
+// Reconnect when there is connection problem
+$events->addListener('irc.received.ERROR', $reconnect);
+$events->addListener('connect.error', $reconnect);
 ```
