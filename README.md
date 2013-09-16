@@ -1,8 +1,16 @@
 Phoebe
 ======
-
-Phoebe is IRC bot skeleton based on Phergie components.
+Phoebe is an IRC bot skeleton based on Phergie components.
 The main advantage over Phergie 2 is its flexibility, which could be achieved with PHP namespaces.
+
+####Table of contents
+* [Examples of use](#examples-of-use)
+ * [Simple Phoebe bot](#simple-phoebe-bot)
+ * [Multiple IRC networks](#multiple-irc-networks)
+* [Event object](#event-object)
+* [Creating custom plugins](#creating-custom-plugins)
+* [Using Timers](#using-timers)
+
 
 ##Examples of use
 
