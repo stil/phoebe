@@ -133,7 +133,7 @@ class UserInfoPlugin implements PluginInterface
             return;
         }
 
-        $chan = $msg['params']['channels'];
+        $chan = strtolower($msg['params']['channels']);
         $nick = $msg['nick'];
 
         $this->store[$chan][$nick] = self::REGULAR;
@@ -152,7 +152,7 @@ class UserInfoPlugin implements PluginInterface
             return;
         }
 
-        $chan = $msg['params']['channels'];
+        $chan = strtolower($msg['params']['channels']);
         $nick = $msg['nick'];
 
         if (isset($this->store[$chan][$nick])) {
@@ -176,6 +176,7 @@ class UserInfoPlugin implements PluginInterface
         $nick = $msg['nick'];
 
         foreach ($this->store as $chan => $store) {
+            $chan = strtolower($chan);
             if (isset($store[$nick])) {
                 unset($this->store[$chan][$nick]);
             }
@@ -199,6 +200,7 @@ class UserInfoPlugin implements PluginInterface
         $newNick = $msg['params']['nickname'];
 
         foreach ($this->store as $chan => $store) {
+            $chan = strtolower($chan);
             if (isset($store[$nick])) {
                 $this->store[$chan][$newNick] = $store[$nick];
                 unset($this->store[$chan][$nick]);
@@ -214,7 +216,7 @@ class UserInfoPlugin implements PluginInterface
     public function onNameReply(Event $event)
     {
         $msg = $event->getMessage();
-        $chan  = $msg['params'][3];
+        $chan  = strtolower($msg['params'][3]);
         $names = explode(' ', $msg['params'][4]);
 
         foreach ($names as $user) {
