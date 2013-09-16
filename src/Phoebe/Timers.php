@@ -40,7 +40,7 @@ class Timers
      * @param  TimerInterface $timer Timer object to cancel
      * @return void
      */
-    public function cancel(TimerInterface $timer)
+    public function cancel($timer)
     {
         return $this->loop->cancelTimer($timer);
     }
