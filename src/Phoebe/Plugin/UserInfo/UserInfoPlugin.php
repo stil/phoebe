@@ -21,15 +21,16 @@ class UserInfoPlugin implements PluginInterface
 
     public static function getSubscribedEvents()
     {
-        return array(
-            'irc.received.PRIVMSG'  => array('onPrivmsg', 0),
-            'irc.received.MODE' => array('onMode', 0),
-            'irc.received.JOIN' => array('onJoin', 0),
-            'irc.received.PART' => array('onPart', 0),
-            'irc.received.QUIT' => array('onQuit', 0),
-            'irc.received.NICK' => array('onNick', 0),
-            'irc.received.353'  => array('onNameReply', 0)
-        );
+        return [
+            'irc.received.001'     => ['onWelcome'],
+            'irc.received.MODE'    => ['onMode'],
+            'irc.received.JOIN'    => ['onJoin'],
+            'irc.received.PART'    => ['onPart'],
+            'irc.received.QUIT'    => ['onQuit'],
+            'irc.received.NICK'    => ['onNick'],
+            'irc.received.353'     => ['onNameReply'],
+            'irc.received.PRIVMSG' => ['onPrivmsg']
+        ];
     }
 
     /**
@@ -40,11 +41,11 @@ class UserInfoPlugin implements PluginInterface
     protected $debug = false;
 
     /**
-     * An array containing all the user information for a given channel
+     * An object handling all the user information on different channels
      *
-     * @var array
+     * @var Storage
      */
-    protected $store = array();
+    protected $storage;
 
     /**
      * Sets debug mode
@@ -57,34 +58,54 @@ class UserInfoPlugin implements PluginInterface
     }
 
     /**
+     * Prepares storage object
+     */
+    public function __construct(StorageInterface $storage = null)
+    {
+        if ($storage !== null) {
+            $this->storage = $storage;
+        } else {
+            $this->storage = new StorageSqlite();
+        }
+        
+    }
+
+    /**
+     * Clears storage
+     * 
+     * @param  Event  $event Event object
+     */
+    public function onWelcome(Event $event)
+    {
+        $this->storage->clear();
+    }
+
+    /**
      * Tracks mode changes
      *
-     * @return void
+     * @param  Event  $event Event object
      */
     public function onMode(Event $event)
     {
         $msg = $event->getMessage();
-
-        if (!isset($msg['params']['channel']) || !isset($msg['params']['user'])) {
+        if (!isset($msg['params']['channel'])) {
             return;
         }
 
         $chan = $msg['params']['channel'];
-        $nicks = $msg['params']['user'];
+        $nicks = explode(' ', $msg['params']['all'], 3)[2];
         $modes = $msg['params']['mode'];
 
         if (!preg_match('/(?:\+|-)[hovaq+-]+/i', $modes)) {
             return;
         }
 
-        $chan = trim(strtolower($chan));
         $modes = str_split(trim(strtolower($modes)), 1);
         $nicks = explode(' ', trim($nicks));
         $operation = array_shift($modes); // + or -
 
         while ($char = array_shift($modes)) {
             $nick = array_shift($nicks);
-            $mode = null;
 
             switch ($char) {
                 case 'q':
@@ -104,26 +125,28 @@ class UserInfoPlugin implements PluginInterface
                     break;
             }
 
-            if (!empty($mode)) {
-
-                // Unknow users - temp fix
-                if (!isset($this->store[$chan][$nick])) {
-                    $this->store[$chan][$nick] = self::REGULAR;
-                }
-
-                if ($operation == '+') {
-                    $this->store[$chan][$nick] |= $mode;
-                } else if ($operation == '-') {
-                    $this->store[$chan][$nick] ^= $mode;
-                }
+            $userMode = $this->storage->getUserMode($nick, $chan);
+            if (!$userMode) {
+                $userMode = self::REGULAR;
             }
+
+            switch ($operation) {
+                case '+':
+                    $userMode |= $mode;
+                    break;
+                case '-':
+                    $userMode ^= $mode;
+                    break;
+            }
+
+            $this->storage->setUserMode($nick, $chan, $userMode);
         }
     }
 
     /**
      * Tracks users joining a channel
      *
-     * @return void
+     * @param  Event  $event Event object
      */
     public function onJoin(Event $event)
     {
@@ -133,16 +156,16 @@ class UserInfoPlugin implements PluginInterface
             return;
         }
 
-        $chan = strtolower($msg['params']['channels']);
+        $chan = $msg['params']['channels'];
         $nick = $msg['nick'];
 
-        $this->store[$chan][$nick] = self::REGULAR;
+        $this->storage->setUserMode($nick, $chan, self::REGULAR);
     }
 
     /**
      * Tracks users leaving a channel
      *
-     * @return void
+     * @param  Event  $event Event object
      */
     public function onPart(Event $event)
     {
@@ -152,18 +175,16 @@ class UserInfoPlugin implements PluginInterface
             return;
         }
 
-        $chan = strtolower($msg['params']['channels']);
         $nick = $msg['nick'];
+        $chan = $msg['params']['channels'];
 
-        if (isset($this->store[$chan][$nick])) {
-            unset($this->store[$chan][$nick]);
-        }
+        $this->storage->removeUser($nick, $chan);
     }
 
     /**
      * Tracks users quitting a server
      *
-     * @return void
+     * @param  Event  $event Event object
      */
     public function onQuit(Event $event)
     {
@@ -175,126 +196,108 @@ class UserInfoPlugin implements PluginInterface
 
         $nick = $msg['nick'];
 
-        foreach ($this->store as $chan => $store) {
-            $chan = strtolower($chan);
-            if (isset($store[$nick])) {
-                unset($this->store[$chan][$nick]);
-            }
-        }
+        $this->storage->removeUser($nick);
     }
 
     /**
      * Tracks users changing nicks
      *
-     * @return void
+     * @param  Event  $event Event object
      */
     public function onNick(Event $event)
     {
         $msg = $event->getMessage();
 
-        if (!isset($msg['nick'])) {
-            return;
-        }
-
-        $nick = $msg['nick'];
+        $oldNick = $msg['nick'];
         $newNick = $msg['params']['nickname'];
 
-        foreach ($this->store as $chan => $store) {
-            $chan = strtolower($chan);
-            if (isset($store[$nick])) {
-                $this->store[$chan][$newNick] = $store[$nick];
-                unset($this->store[$chan][$nick]);
-            }
-        }
+        $this->storage->updateNickname($oldNick, $newNick);
     }
 
     /**
      * Populates the internal user listing for a channel when the bot joins it.
      *
-     * @return void
+     * @param  Event  $event Event object
      */
     public function onNameReply(Event $event)
     {
         $msg = $event->getMessage();
-        $chan  = strtolower($msg['params'][3]);
+        $chan = $msg['params'][3];
         $names = explode(' ', $msg['params'][4]);
 
-        foreach ($names as $user) {
+        foreach ($names as $nick) {
             $flag = self::REGULAR;
-            if ($user[0] == '~') {
-                $flag |= self::OWNER;
-            } else if ($user[0] == '&') {
-                $flag |= self::ADMIN;
-            } else if ($user[0] == '@') {
-                $flag |= self::OP;
-            } else if ($user[0] == '%') {
-                $flag |= self::HALFOP;
-            } else if ($user[0] == '+') {
-                $flag |= self::VOICE;
+            switch ($nick[0]) {
+                case '~':
+                    $flag |= self::OWNER;
+                    break;
+                case '&':
+                    $flag |= self::ADMIN;
+                    break;
+                case '@':
+                    $flag |= self::OP;
+                    break;
+                case '%':
+                    $flag |= self::HALFOP;
+                    break;
+                case '+':
+                    $flag |= self::VOICE;
+                    break;
             }
 
             if ($flag != self::REGULAR) {
-                $user = substr($user, 1);
+                $nick = substr($nick, 1);
             }
 
-            $this->store[$chan][$user] = $flag;
+            $this->storage->setUserMode($nick, $chan, $flag);
         }
     }
 
     /**
      * Debugging function
      *
-     * @return void
+     * @param  Event  $event Event object
      */
     public function onPrivmsg(Event $event)
     {
-        if ($this->debug == false) {
+        if ($this->debug === false) {
             return;
         }
 
         $msg = $event->getMessage();
-        $writeStream = $event->getWriteStream();
-
         $target = $msg['targets'][0];
         $msg = $msg['params']['text'];
 
-        if (preg_match('#^ishere (\S+)$#', $msg, $m)) {
-            $writeStream->ircPrivmsg(
-                $target, $this->isIn($m[1], $target) ? 'true' : 'false'
-            );
-        } elseif (preg_match('#^isowner (\S+)$#', $msg, $m)) {
-            $writeStream->ircPrivmsg(
-                $target, $this->isOwner($m[1], $target) ? 'true' : 'false'
-            );
-        } elseif (preg_match('#^isadmin (\S+)$#', $msg, $m)) {
-            $writeStream->ircPrivmsg(
-                $target, $this->isAdmin($m[1], $target) ? 'true' : 'false'
-            );
-        } elseif (preg_match('#^isop (\S+)$#', $msg, $m)) {
-            $writeStream->ircPrivmsg(
-                $target, $this->isOp($m[1], $target) ? 'true' : 'false'
-            );
-        } elseif (preg_match('#^ishop (\S+)$#', $msg, $m)) {
-            $writeStream->ircPrivmsg(
-                $target, $this->isHalfop($m[1], $target) ? 'true' : 'false'
-            );
-        } elseif (preg_match('#^isvoice (\S+)$#', $msg, $m)) {
-            $writeStream->ircPrivmsg(
-                $target, $this->isVoice($m[1], $target) ? 'true' : 'false'
-            );
-        } elseif (preg_match('#^channels (\S+)$#', $msg, $m)) {
+        $send = function ($msg) use ($event, $target) {
+            $writeStream = $event->getWriteStream();
+            $writeStream->ircPrivmsg($target, $msg);
+        };
+
+        $match = function ($pattern, &$m) use ($msg) {
+            return preg_match($pattern, $msg, $m);
+        };
+
+        if ($match('#^ishere (\S+)$#', $m)) {
+            $send($this->isIn($m[1], $target) ? 'true' : 'false');
+        } elseif ($match('#^isowner (\S+)$#', $m)) {
+            $send($this->isOwner($m[1], $target) ? 'true' : 'false');
+        } elseif ($match('#^isadmin (\S+)$#', $m)) {
+            $send($this->isAdmin($m[1], $target) ? 'true' : 'false');
+        } elseif ($match('#^isop (\S+)$#', $m)) {
+            $send($this->isOp($m[1], $target) ? 'true' : 'false');
+        } elseif ($match('#^ishop (\S+)$#', $m)) {
+            $send($this->isHalfop($m[1], $target) ? 'true' : 'false');
+        } elseif ($match('#^isvoice (\S+)$#', $m)) {
+            $send($this->isVoice($m[1], $target) ? 'true' : 'false');
+        } elseif ($match('#^channels (\S+)$#', $m)) {
             $channels = $this->getChannels($m[1]);
-            $writeStream->ircPrivmsg(
-                $target, $channels ? join(', ', $channels) : 'unable to find nick'
-            );
-        } elseif (preg_match('#^users (\S+)$#', $msg, $m)) {
+            $send($channels ? join(', ', $channels) : 'unable to find nick');
+        } elseif ($match('#^users (\S+)$#', $m)) {
             $nicks = $this->getUsers($m[1]);
-            $writeStream->ircPrivmsg(
-                $target, $nicks ? join(', ', $nicks) : 'unable to find channel'
-            );
-        } elseif (preg_match('#^random (\S+)$#', $msg, $m)) {
-            $nick = $this->getrandomuser($m[1]);
-            $writeStream->ircPrivmsg($target, $nick ? $nick : 'unable to  find channel');
+            $send($nicks ? join(', ', $nicks) : 'unable to find channel');
+        } elseif ($match('#^random (\S+)$#', $m)) {
+            $nick = $this->getRandomUser($m[1]);
+            $send($nick ? $nick : 'unable to find channel');
         }
     }
 
@@ -309,14 +312,13 @@ class UserInfoPlugin implements PluginInterface
      */
     public function is($mode, $nick, $chan)
     {
-        $chan = trim(strtolower($chan));
-        $nick = trim($nick);
+        $userMode = $this->storage->getUserMode($nick, $chan);
 
-        if (!isset($this->store[$chan][$nick])) {
+        if ($userMode) {
+            return ($userMode & $mode) != 0;
+        } else {
             return false;
         }
-
-        return ($this->store[$chan][$nick] & $mode) != 0;
     }
 
     /**
@@ -407,22 +409,12 @@ class UserInfoPlugin implements PluginInterface
      */
     public function getUsers($chan)
     {
-        $chan = trim(strtolower($chan));
-        if (isset($this->store[$chan])) {
-            return array_keys($this->store[$chan]);
-        }
-        return false;
+        return $this->storage->getUsers($chan);
     }
 
     /**
      * Returns the nick of a random user present in a given channel or false
      * if the bot is not present in the channel.
-     *
-     * To exclude the bot's current nick, for example:
-     *     $chan = $this->getEvent()->getSource();
-     *     $current_nick = $this->getConnection()->getNick();
-     *     $random_user = $this->plugins->getPlugin('UserInfo')
-     *          ->getRandomUser( $chan, array( $current_nick ) );
      *
      * @param string $chan   The channel name
      * @param array  $ignore A list of nicks to ignore in the channel.
@@ -430,19 +422,9 @@ class UserInfoPlugin implements PluginInterface
      *
      * @return string|bool
      */
-    public function getRandomUser($chan, $ignore = array('chanserv'))
+    public function getRandomUser($chan, $ignore = ['chanserv'])
     {
-        $chan = trim(strtolower($chan));
-
-        if (isset($this->store[$chan])) {
-            do {
-                $nick = array_rand($this->store[$chan], 1);
-            } while (in_array($nick, $ignore));
-
-            return $nick;
-        }
-
-        return false;
+        return $this->storage->getRandomUser($chan, $ignore);
     }
 
     /**
@@ -454,15 +436,6 @@ class UserInfoPlugin implements PluginInterface
      */
     public function getChannels($nick)
     {
-        $nick = trim($nick);
-        $channels = array();
-
-        foreach ($this->store as $chan => $store) {
-            if (isset($store[$nick])) {
-                $channels[] = $chan;
-            }
-        }
-
-        return $channels;
+        return $this->storage->getChannels($nick);
     }
 }
