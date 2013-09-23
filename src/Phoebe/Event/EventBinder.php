@@ -4,8 +4,7 @@ namespace Phoebe\Event;
 use Phergie\Irc\Client\React\Client;
 use Phoebe\ConnectionManager;
 use Phoebe\Event\Event;
-use Phoebe\Event\MessageReceivedEvent;
-use Phoebe\Event\MessageSentEvent;
+use Phoebe\Message\ReceivedMessage;
 
 class EventBinder
 {
@@ -59,7 +58,8 @@ class EventBinder
     {
         list($message, $writeStream, $connection, $logger) = $args;
 
-        $event = new MessageReceivedEvent();
+        $message = new ReceivedMessage($message);
+        $event = new Event();
         $event->setMessage($message);
         $event->setWriteStream($writeStream);
         $event->setConnection($connection);
@@ -74,7 +74,7 @@ class EventBinder
     {
         list($message, $connection, $logger) = $args;
 
-        $event = new MessageSentEvent();
+        $event = new Event();
         $event->setMessage($message);
         $event->setConnection($connection);
         $event->setLogger($logger);
