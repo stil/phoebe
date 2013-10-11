@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "61e366e771f0ad681c93aae48995204d",
+    "hash": "8f03ec8c0b27535105026d481b35af56",
     "packages": [
         {
             "name": "evenement/evenement",
@@ -109,26 +109,26 @@
         },
         {
             "name": "phergie/phergie-irc-client-react",
-            "version": "dev-master",
+            "version": "1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phergie/phergie-irc-client-react.git",
-                "reference": "8243cee478d3c5c12c6efd1b2ad4bef473a4ba1e"
+                "reference": "2c54bf980e9c597e2954037ca4990d5da9ea1155"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phergie/phergie-irc-client-react/zipball/8243cee478d3c5c12c6efd1b2ad4bef473a4ba1e",
-                "reference": "8243cee478d3c5c12c6efd1b2ad4bef473a4ba1e",
+                "url": "https://api.github.com/repos/phergie/phergie-irc-client-react/zipball/2c54bf980e9c597e2954037ca4990d5da9ea1155",
+                "reference": "2c54bf980e9c597e2954037ca4990d5da9ea1155",
                 "shasum": ""
             },
             "require": {
-                "monolog/monolog": "~1.2",
-                "phergie/phergie-irc-connection": "dev-master",
-                "phergie/phergie-irc-generator": "dev-master",
-                "phergie/phergie-irc-parser": "dev-master",
+                "monolog/monolog": "1.6.*",
+                "phergie/phergie-irc-connection": "1.1.*",
+                "phergie/phergie-irc-generator": "1.2.*",
+                "phergie/phergie-irc-parser": "1.3.*",
                 "php": ">=5.3.3",
-                "react/event-loop": "0.2.*",
-                "react/stream": "0.2.*"
+                "react/event-loop": "0.3.*",
+                "react/stream": "0.3.*"
             },
             "type": "library",
             "autoload": {
@@ -146,11 +146,11 @@
                 "irc",
                 "react"
             ],
-            "time": "2013-08-25 04:36:26"
+            "time": "2013-10-05 13:25:24"
         },
         {
             "name": "phergie/phergie-irc-connection",
-            "version": "dev-master",
+            "version": "1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phergie/phergie-irc-connection.git",
@@ -186,16 +186,16 @@
         },
         {
             "name": "phergie/phergie-irc-generator",
-            "version": "dev-master",
+            "version": "1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phergie/phergie-irc-generator.git",
-                "reference": "81e82fd64187d64295336251bd218b7f640f30be"
+                "reference": "d03ec9998344caeb360956e62da6214e071b4b49"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phergie/phergie-irc-generator/zipball/81e82fd64187d64295336251bd218b7f640f30be",
-                "reference": "81e82fd64187d64295336251bd218b7f640f30be",
+                "url": "https://api.github.com/repos/phergie/phergie-irc-generator/zipball/d03ec9998344caeb360956e62da6214e071b4b49",
+                "reference": "d03ec9998344caeb360956e62da6214e071b4b49",
                 "shasum": ""
             },
             "require": {
@@ -216,20 +216,20 @@
                 "generator",
                 "irc"
             ],
-            "time": "2013-08-13 02:41:36"
+            "time": "2013-10-05 12:03:37"
         },
         {
             "name": "phergie/phergie-irc-parser",
-            "version": "dev-master",
+            "version": "1.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phergie/phergie-irc-parser.git",
-                "reference": "d36f74fc1bd93f4e05606ec007f6447bcc30ea62"
+                "reference": "9d9b7e596b78214b73c153a35c1e7498470c2d14"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phergie/phergie-irc-parser/zipball/d36f74fc1bd93f4e05606ec007f6447bcc30ea62",
-                "reference": "d36f74fc1bd93f4e05606ec007f6447bcc30ea62",
+                "url": "https://api.github.com/repos/phergie/phergie-irc-parser/zipball/9d9b7e596b78214b73c153a35c1e7498470c2d14",
+                "reference": "9d9b7e596b78214b73c153a35c1e7498470c2d14",
                 "shasum": ""
             },
             "require": {
@@ -250,7 +250,7 @@
                 "irc",
                 "parser"
             ],
-            "time": "2013-08-13 12:34:23"
+            "time": "2013-10-05 11:55:30"
         },
         {
             "name": "psr/log",
@@ -292,17 +292,17 @@
         },
         {
             "name": "react/event-loop",
-            "version": "v0.2.7",
+            "version": "v0.3.3",
             "target-dir": "React/EventLoop",
             "source": {
                 "type": "git",
-                "url": "https://github.com/reactphp/event-loop",
-                "reference": "v0.2.7"
+                "url": "https://github.com/reactphp/event-loop.git",
+                "reference": "49208fa3a15c9eae4adf8351ee9caa4064fe550d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://github.com/reactphp/event-loop/archive/v0.2.7.zip",
-                "reference": "v0.2.7",
+                "url": "https://api.github.com/repos/reactphp/event-loop/zipball/49208fa3a15c9eae4adf8351ee9caa4064fe550d",
+                "reference": "49208fa3a15c9eae4adf8351ee9caa4064fe550d",
                 "shasum": ""
             },
             "require": {
@@ -315,7 +315,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "0.2-dev"
+                    "dev-master": "0.3-dev"
                 }
             },
             "autoload": {
@@ -331,21 +331,21 @@
             "keywords": [
                 "event-loop"
             ],
-            "time": "2013-01-05 11:41:26"
+            "time": "2013-07-08 22:38:22"
         },
         {
             "name": "react/stream",
-            "version": "v0.2.7",
+            "version": "v0.3.3",
             "target-dir": "React/Stream",
             "source": {
                 "type": "git",
-                "url": "https://github.com/reactphp/stream",
-                "reference": "v0.2.7"
+                "url": "https://github.com/reactphp/stream.git",
+                "reference": "b72900ab00513b591fb101faecad38f9c8eab8da"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://github.com/reactphp/stream/archive/v0.2.7.zip",
-                "reference": "v0.2.7",
+                "url": "https://api.github.com/repos/reactphp/stream/zipball/b72900ab00513b591fb101faecad38f9c8eab8da",
+                "reference": "b72900ab00513b591fb101faecad38f9c8eab8da",
                 "shasum": ""
             },
             "require": {
@@ -353,13 +353,13 @@
                 "php": ">=5.3.3"
             },
             "suggest": {
-                "react/event-loop": "0.2.*",
-                "react/promise": "1.0.*"
+                "react/event-loop": "0.3.*",
+                "react/promise": "~1.0"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "0.2-dev"
+                    "dev-master": "0.3-dev"
                 }
             },
             "autoload": {
@@ -376,21 +376,21 @@
                 "pipe",
                 "stream"
             ],
-            "time": "2012-12-14 00:58:14"
+            "time": "2013-07-09 00:44:12"
         },
         {
             "name": "symfony/event-dispatcher",
-            "version": "v2.3.4",
+            "version": "v2.3.6",
             "target-dir": "Symfony/Component/EventDispatcher",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/EventDispatcher.git",
-                "reference": "41c9826457c65fa3cf746f214985b7ca9cba42f8"
+                "reference": "7fc72a7a346a1887d3968cc1ce5642a15cd182e9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/EventDispatcher/zipball/41c9826457c65fa3cf746f214985b7ca9cba42f8",
-                "reference": "41c9826457c65fa3cf746f214985b7ca9cba42f8",
+                "url": "https://api.github.com/repos/symfony/EventDispatcher/zipball/7fc72a7a346a1887d3968cc1ce5642a15cd182e9",
+                "reference": "7fc72a7a346a1887d3968cc1ce5642a15cd182e9",
                 "shasum": ""
             },
             "require": {
@@ -430,7 +430,7 @@
             ],
             "description": "Symfony EventDispatcher Component",
             "homepage": "http://symfony.com",
-            "time": "2013-07-21 12:12:18"
+            "time": "2013-09-19 09:45:20"
         }
     ],
     "packages-dev": [
@@ -497,16 +497,16 @@
         },
         {
             "name": "phpunit/php-file-iterator",
-            "version": "1.3.3",
+            "version": "1.3.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-file-iterator.git",
-                "reference": "16a78140ed2fc01b945cfa539665fadc6a038029"
+                "reference": "acd690379117b042d1c8af1fafd61bde001bf6bb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-file-iterator/zipball/16a78140ed2fc01b945cfa539665fadc6a038029",
-                "reference": "16a78140ed2fc01b945cfa539665fadc6a038029",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-file-iterator/zipball/acd690379117b042d1c8af1fafd61bde001bf6bb",
+                "reference": "acd690379117b042d1c8af1fafd61bde001bf6bb",
                 "shasum": ""
             },
             "require": {
@@ -533,12 +533,12 @@
                 }
             ],
             "description": "FilterIterator implementation that filters files based on a list of suffixes.",
-            "homepage": "http://www.phpunit.de/",
+            "homepage": "https://github.com/sebastianbergmann/php-file-iterator/",
             "keywords": [
                 "filesystem",
                 "iterator"
             ],
-            "time": "2012-10-11 11:44:38"
+            "time": "2013-10-10 15:34:57"
         },
         {
             "name": "phpunit/php-text-template",
@@ -680,16 +680,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "3.7.26",
+            "version": "3.7.27",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "551d18555488f385aea9dfb33f2ba3fe6f3050f8"
+                "reference": "4b024e753e3421837afbcca962c8724c58b39376"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/551d18555488f385aea9dfb33f2ba3fe6f3050f8",
-                "reference": "551d18555488f385aea9dfb33f2ba3fe6f3050f8",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/4b024e753e3421837afbcca962c8724c58b39376",
+                "reference": "4b024e753e3421837afbcca962c8724c58b39376",
                 "shasum": ""
             },
             "require": {
@@ -750,7 +750,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2013-09-13 05:00:10"
+            "time": "2013-09-16 03:09:52"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
@@ -803,17 +803,17 @@
         },
         {
             "name": "symfony/yaml",
-            "version": "v2.3.4",
+            "version": "v2.3.6",
             "target-dir": "Symfony/Component/Yaml",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Yaml.git",
-                "reference": "5a279f1b5f5e1045a6c432354d9ea727ff3a9847"
+                "reference": "6bb881b948368482e1abf1a75c08bcf88a1c5fc3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Yaml/zipball/5a279f1b5f5e1045a6c432354d9ea727ff3a9847",
-                "reference": "5a279f1b5f5e1045a6c432354d9ea727ff3a9847",
+                "url": "https://api.github.com/repos/symfony/Yaml/zipball/6bb881b948368482e1abf1a75c08bcf88a1c5fc3",
+                "reference": "6bb881b948368482e1abf1a75c08bcf88a1c5fc3",
                 "shasum": ""
             },
             "require": {
@@ -846,16 +846,16 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "http://symfony.com",
-            "time": "2013-08-24 15:26:22"
+            "time": "2013-09-22 18:04:39"
         }
     ],
     "aliases": [
 
     ],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "phergie/phergie-irc-client-react": 20
-    },
+    "stability-flags": [
+
+    ],
     "platform": {
         "php": ">=5.4"
     },

@@ -4,7 +4,7 @@
     "prefer-stable": true,
     "require": {
         "php": ">=5.4",
-        "phergie/phergie-irc-client-react": "dev-master",
+        "phergie/phergie-irc-client-react": "1.0.0",
         "symfony/event-dispatcher": "2.3.*"
     },
     "require-dev": {
