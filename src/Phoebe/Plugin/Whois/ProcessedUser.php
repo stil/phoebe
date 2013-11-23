@@ -4,13 +4,18 @@ namespace Phoebe\Plugin\Whois;
 class ProcessedUser
 {
     protected $info = [];
-    protected $nickname;
+    protected $id;
     protected $callback;
 
     public function __construct($nickname, $callback)
     {
-        $this->nickname = $nickname;
+        $this->id = strtolower($nickname);
         $this->callback = $callback;
+    }
+
+    public function getId()
+    {
+        return $this->id;
     }
 
     public function triggerCallback()

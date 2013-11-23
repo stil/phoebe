@@ -3,57 +3,53 @@ namespace Phoebe\Plugin\Whois;
 
 use Phoebe\Event\Event;
 use Phoebe\Plugin\PluginInterface;
-use SplQueue;
+use Phergie\Irc\Parser;
 
 class WhoisPlugin implements PluginInterface
 {
-    protected $queue;
-    protected $whoisInProgress = false;
+    protected $queue = [];
+    protected $parser;
 
     public static function getSubscribedEvents()
     {
         return [
-            'irc.received.311' => ['onWhoisBegin'],
-            'irc.received.318' => ['onWhoisEnd'],
-            'irc.received'     => ['onMessage']
+            'irc.received.311' => ['onWhois']
         ];
     }
 
     public function __construct()
     {
-        $this->queue = new SplQueue();
+        $this->parser = new Parser();
     }
 
     public function whois($nickname, $writeStream, $callback)
     {
-        $this->queue->enqueue(
-            new ProcessedUser($nickname, $callback)
-        );
+        $user = new ProcessedUser($nickname, $callback);
+        $this->queue[$user->getId()] = $user;
 
         $writeStream->ircWhois('', $nickname);
     }
 
-    public function onWhoisBegin(Event $event)
+    public function onWhois(Event $event)
     {
-        $this->whoisInProgress = true;
-    }
-
-    public function onMessage(Event $event)
-    {
-        if ($this->whoisInProgress == false || $this->queue->isEmpty()) {
+        $msg = $event->getMessage();
+        if (!isset($msg['params'][2]) || !isset($msg['tail'])) {
             return;
         }
-        
-        $this->queue->bottom()->addWhoisReply(
-            $event->getMessage()
-        );
-    }
 
-    public function onWhoisEnd(Event $event)
-    {
-        $this->whoisInProgress = false;
-        $user = $this->queue->bottom();
-        $this->queue->dequeue();
-        $user->triggerCallback();
+        $id = strtolower($msg['params'][2]);
+        if (isset($this->queue[$id])) {
+            $user = $this->queue[$id];
+            $tail = $msg['tail'];
+            while (($reply = $this->parser->consume($tail)) !== null) {
+                if ($reply['command'] != '318') {
+                    $user->addWhoisReply($reply);
+                } else {
+                    break;
+                }
+            }
+            unset($this->queue[$id]);
+            $user->triggerCallback();
+        }
     }
 }
