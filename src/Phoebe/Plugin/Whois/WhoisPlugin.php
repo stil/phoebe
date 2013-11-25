@@ -3,53 +3,57 @@ namespace Phoebe\Plugin\Whois;
 
 use Phoebe\Event\Event;
 use Phoebe\Plugin\PluginInterface;
-use Phergie\Irc\Parser;
+use SplQueue;
 
 class WhoisPlugin implements PluginInterface
 {
-    protected $queue = [];
-    protected $parser;
+    protected $queue;
+    protected $whoisInProgress = false;
 
     public static function getSubscribedEvents()
     {
         return [
-            'irc.received.311' => ['onWhois']
+            'irc.received.311' => ['onWhoisBegin'],
+            'irc.received.318' => ['onWhoisEnd'],
+            'irc.received'     => ['onMessage']
         ];
     }
 
     public function __construct()
     {
-        $this->parser = new Parser();
+        $this->queue = new SplQueue();
     }
 
     public function whois($nickname, $writeStream, $callback)
     {
-        $user = new ProcessedUser($nickname, $callback);
-        $this->queue[$user->getId()] = $user;
+        $this->queue->enqueue(
+            new ProcessedUser($nickname, $callback)
+        );
 
         $writeStream->ircWhois('', $nickname);
     }
 
-    public function onWhois(Event $event)
+    public function onWhoisBegin(Event $event)
     {
-        $msg = $event->getMessage();
-        if (!isset($msg['params'][2]) || !isset($msg['tail'])) {
+        $this->whoisInProgress = true;
+    }
+
+    public function onMessage(Event $event)
+    {
+        if ($this->whoisInProgress == false || $this->queue->isEmpty()) {
             return;
         }
+        
+        $this->queue->bottom()->addWhoisReply(
+            $event->getMessage()
+        );
+    }
 
-        $id = strtolower($msg['params'][2]);
-        if (isset($this->queue[$id])) {
-            $user = $this->queue[$id];
-            $tail = $msg['tail'];
-            while (($reply = $this->parser->consume($tail)) !== null) {
-                if ($reply['command'] != '318') {
-                    $user->addWhoisReply($reply);
-                } else {
-                    break;
-                }
-            }
-            unset($this->queue[$id]);
-            $user->triggerCallback();
-        }
+    public function onWhoisEnd(Event $event)
+    {
+        $this->whoisInProgress = false;
+        $user = $this->queue->bottom();
+        $this->queue->dequeue();
+        $user->triggerCallback();
     }
 }
