@@ -8,7 +8,9 @@ The main advantage over Phergie 2 is its flexibility, which could be achieved wi
  * [Simple Phoebe bot](#simple-phoebe-bot)
  * [Multiple IRC networks](#multiple-irc-networks)
 * [Event object](#event-object)
-* [Creating custom plugins](#creating-custom-plugins)
+* [Plugins](#plugins)
+ * [List of plugins](#list-of-plugins)
+ * [Creating custom plugins](#creating-custom-plugins)
 * [Using Timers](#using-timers)
 
 
@@ -132,7 +134,17 @@ Below you can check which methods are available at different events
 | `getLogger()`               | yes              | yes        | yes                |
 | `getWriteStream()`          | yes              | no         | no                 |          
 
-##Creating custom plugins
+##Plugins
+
+###List of plugins
+* [`Phoebe\Plugin\PingPong\PingPongPlugin`](https://github.com/stil/phoebe/blob/master/src/Phoebe/Plugin/PingPong/PingPongPlugin.php) - keeps connection alive by responding to server PING messages
+* [`Phoebe\Plugin\UserInfo\UserInfoPlugin`](https://github.com/stil/phoebe/blob/master/src/Phoebe/Plugin/UserInfo/UserInfoPlugin.php) - tracks information on users joining and parting the channels and their flags (+o, +v etc.)
+* [`Phoebe\Plugin\AutoJoin\AutoJoinPlugin`](https://github.com/stil/phoebe/blob/master/src/Phoebe/Plugin/AutoJoin/AutoJoinPlugin.php) - allows you to configure easily channels which have to be joined on startup
+* [`Phoebe\Plugin\NickServ\NickServPlugin`](https://github.com/stil/phoebe/blob/master/src/Phoebe/Plugin/NickServ/NickServPlugin.php) - identifies to NickServ on startup
+
+Do you know plugins worth spreading? Add them to list above through pull request! (but keep similiar form: class name with link - description)
+
+###Creating custom plugins
 Plugin class has just to implement `getSubscribedEvents()` method.
 
 Here is example of simple plugin:
