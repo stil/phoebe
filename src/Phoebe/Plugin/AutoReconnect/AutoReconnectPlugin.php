@@ -57,6 +57,9 @@ class AutoReconnectPlugin implements PluginInterface
             function () use ($event, $now, $self) {
                 $before = $now;
                 $after = $self->lastPingTime[$event->getConnection()];
+                
+                $self->lastPingTime[$event->getConnection()] = time();
+
                 if ($before == $after) {
                     $self->reconnect($event);
                 }
