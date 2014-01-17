@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "8f03ec8c0b27535105026d481b35af56",
+    "hash": "cde7526073a78c6cca875e5302167422",
     "packages": [
         {
             "name": "evenement/evenement",
@@ -257,13 +257,13 @@
             "version": "1.0.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/php-fig/log",
-                "reference": "1.0.0"
+                "url": "https://github.com/php-fig/log.git",
+                "reference": "fe0936ee26643249e916849d48e3a51d5f5e278b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://github.com/php-fig/log/archive/1.0.0.zip",
-                "reference": "1.0.0",
+                "url": "https://api.github.com/repos/php-fig/log/zipball/fe0936ee26643249e916849d48e3a51d5f5e278b",
+                "reference": "fe0936ee26643249e916849d48e3a51d5f5e278b",
                 "shasum": ""
             },
             "type": "library",
@@ -379,18 +379,48 @@
             "time": "2013-07-09 00:44:12"
         },
         {
+            "name": "stil/curl-easy",
+            "version": "v1.1.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/stil/curl-easy.git",
+                "reference": "14bb5b68873968fb8758a84d40ebdd5a33a01b8e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/stil/curl-easy/zipball/14bb5b68873968fb8758a84d40ebdd5a33a01b8e",
+                "reference": "14bb5b68873968fb8758a84d40ebdd5a33a01b8e",
+                "shasum": ""
+            },
+            "require": {
+                "symfony/event-dispatcher": ">=2.2,<3.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "3.7.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "cURL": "src/",
+                    "cURL\\Tests": "tests/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "time": "2013-05-30 18:26:32"
+        },
+        {
             "name": "symfony/event-dispatcher",
-            "version": "v2.3.6",
+            "version": "v2.4.1",
             "target-dir": "Symfony/Component/EventDispatcher",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/EventDispatcher.git",
-                "reference": "7fc72a7a346a1887d3968cc1ce5642a15cd182e9"
+                "reference": "e3ba42f6a70554ed05749e61b829550f6ac33601"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/EventDispatcher/zipball/7fc72a7a346a1887d3968cc1ce5642a15cd182e9",
-                "reference": "7fc72a7a346a1887d3968cc1ce5642a15cd182e9",
+                "url": "https://api.github.com/repos/symfony/EventDispatcher/zipball/e3ba42f6a70554ed05749e61b829550f6ac33601",
+                "reference": "e3ba42f6a70554ed05749e61b829550f6ac33601",
                 "shasum": ""
             },
             "require": {
@@ -406,7 +436,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.3-dev"
+                    "dev-master": "2.4-dev"
                 }
             },
             "autoload": {
@@ -430,7 +460,7 @@
             ],
             "description": "Symfony EventDispatcher Component",
             "homepage": "http://symfony.com",
-            "time": "2013-09-19 09:45:20"
+            "time": "2013-12-28 08:12:03"
         }
     ],
     "packages-dev": [
@@ -680,16 +710,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "3.7.27",
+            "version": "3.7.29",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "4b024e753e3421837afbcca962c8724c58b39376"
+                "reference": "faeb2d9f15dc83830d2db5e4c67acf1d68c9b5ac"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/4b024e753e3421837afbcca962c8724c58b39376",
-                "reference": "4b024e753e3421837afbcca962c8724c58b39376",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/faeb2d9f15dc83830d2db5e4c67acf1d68c9b5ac",
+                "reference": "faeb2d9f15dc83830d2db5e4c67acf1d68c9b5ac",
                 "shasum": ""
             },
             "require": {
@@ -750,7 +780,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2013-09-16 03:09:52"
+            "time": "2014-01-15 06:46:38"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
@@ -803,17 +833,17 @@
         },
         {
             "name": "symfony/yaml",
-            "version": "v2.3.6",
+            "version": "v2.4.1",
             "target-dir": "Symfony/Component/Yaml",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Yaml.git",
-                "reference": "6bb881b948368482e1abf1a75c08bcf88a1c5fc3"
+                "reference": "4e1a237fc48145fae114b96458d799746ad89aa0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Yaml/zipball/6bb881b948368482e1abf1a75c08bcf88a1c5fc3",
-                "reference": "6bb881b948368482e1abf1a75c08bcf88a1c5fc3",
+                "url": "https://api.github.com/repos/symfony/Yaml/zipball/4e1a237fc48145fae114b96458d799746ad89aa0",
+                "reference": "4e1a237fc48145fae114b96458d799746ad89aa0",
                 "shasum": ""
             },
             "require": {
@@ -822,7 +852,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.3-dev"
+                    "dev-master": "2.4-dev"
                 }
             },
             "autoload": {
@@ -846,7 +876,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "http://symfony.com",
-            "time": "2013-09-22 18:04:39"
+            "time": "2013-12-28 08:12:03"
         }
     ],
     "aliases": [

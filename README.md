@@ -141,6 +141,8 @@ Below you can check which methods are available at different events
 * [`Phoebe\Plugin\UserInfo\UserInfoPlugin`](https://github.com/stil/phoebe/blob/master/src/Phoebe/Plugin/UserInfo/UserInfoPlugin.php) - tracks information on users joining and parting the channels and their flags (+o, +v etc.)
 * [`Phoebe\Plugin\AutoJoin\AutoJoinPlugin`](https://github.com/stil/phoebe/blob/master/src/Phoebe/Plugin/AutoJoin/AutoJoinPlugin.php) - allows you to configure easily channels which have to be joined on startup
 * [`Phoebe\Plugin\NickServ\NickServPlugin`](https://github.com/stil/phoebe/blob/master/src/Phoebe/Plugin/NickServ/NickServPlugin.php) - identifies to NickServ on startup
+* [`Phoebe\Plugin\Url\YouTubePlugin`](https://github.com/stil/phoebe/blob/master/src/Phoebe/Plugin/YouTubePlugin.php) - displays information on YouTube links mentioned on channel
+* [`Phoebe\Plugin\Url\SpotifyPlugin`](https://github.com/stil/phoebe/blob/master/src/Phoebe/Plugin/SpotifyPlugin.php) - displays information on Spotify links/URIs mentioned on channel
 
 Do you know plugins worth spreading? Add them to list above through pull request! (but keep similiar form: class name with link - description)
 
