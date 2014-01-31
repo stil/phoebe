@@ -77,12 +77,12 @@ class YouTubePlugin implements PluginInterface
             $feed = json_decode($feed, true);
             $replace = array(
                 '%title'    => $feed['entry']['title']['$t'],
-                '%views'    => number_format($feed['entry']['yt$statistics']['viewCount'], 0, '.', ','),
+                '%views'    => $this->formatBigNumber($feed['entry']['yt$statistics']['viewCount']),
                 '%duration' => TimeDuration::get($feed['entry']['media$group']['yt$duration']['seconds']),
                 '%likes'    => number_format($feed['entry']['yt$rating']['numLikes'], 0, '.', ','),
                 '%dislikes' => number_format($feed['entry']['yt$rating']['numDislikes'], 0, '.', ',')
             );
-            $response = ":: ".Formatter::bold(Formatter::color('You', 'black', 'white').Formatter::color('Tube', 'white', 'red'))." :: \x02%title\x02 (%duration) :: views %views :: \x0303[+] %likes \x0304[-] %dislikes\x03 ::";
+            $response = ":: ".Formatter::bold(Formatter::color('You', 'black', 'white').Formatter::color('Tube', 'white', 'red'))." :: \x02%title\x02 (%duration) :: \x02%views\x02 views :: \x0303[+] %likes \x0304[-] %dislikes\x03 ::";
             $writeStream->ircPrivmsg($channel, strtr($response, $replace));
         }
     }
@@ -100,5 +100,14 @@ class YouTubePlugin implements PluginInterface
                 $event->getTimers()
             );
         }
+    }
+
+    public static function formatBigNumber($n)
+    {
+        $base = floor(log($n) / log(1000));
+        $base = $base > 2 ? 2 : $base;
+        $suffix = ['', 'k', 'M'][$base];
+        $n = round($n / pow(1000, $base), 1);
+        return $n.$suffix;
     }
 }
