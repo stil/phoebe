@@ -29,6 +29,9 @@ class ConnectionManager
     {
         $this->client = new Client();
         $this->timers = new Timers($this->client->getLoop());
+
+        $binder = new EventBinder();
+        $binder->bind($this->client, $this);
     }
 
     /**
@@ -66,8 +69,6 @@ class ConnectionManager
      */
     public function run(array $connections = [])
     {
-        $binder = new EventBinder();
-        $binder->bind($this->client, $this);
         $this->client->run($connections);
     }
 }

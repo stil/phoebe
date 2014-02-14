@@ -8,26 +8,46 @@ use Phoebe\Message\ReceivedMessage;
 
 class EventBinder
 {
+    /**
+     * Instance of Phergie client
+     * @var Phergie\Irc\Client\React\Client
+     */
     protected $client;
+
+    /**
+     * Instance of Phoebe connection manager
+     * @var Phoebe\ConnectionManager
+     */
     protected $connectionManager;
 
+    /**
+     * Binds all events of Phergie client to Phoebe connection manager
+     * @param  Client            $client Phergie client
+     * @param  ConnectionManager $cm     Phoebe connection manager
+     * @return void
+     */
     public function bind(Client $client, ConnectionManager $cm)
     {
         $this->client = $client;
         $this->connectionManager = $cm;
         $this->bindMethods(
             [
-                'irc.received' => 'onIrcReceived',
-                'irc.sent' => 'onIrcSent',
-                'connect.before.all' => 'onConnectBeforeAfterAll',
-                'connect.after.all' => 'onConnectBeforeAfterAll',
-                'connect.before.each' => 'onConnectBeforeAfterEach',
-                'connect.after.each' => 'onConnectBeforeAfterEach',
-                'connect.error' => 'onConnectBeforeAfterEach'
+            'irc.sent' => 'onIrcSent',
+            'irc.received' => 'onIrcReceived',
+            'connect.error' => 'onConnectError',
+            'connect.before.all'  => 'onConnectBeforeAfterAll',
+            'connect.before.each' => 'onConnectBeforeAfterEach',
+            'connect.after.all'   => 'onConnectBeforeAfterAll',
+            'connect.after.each'  => 'onConnectBeforeAfterEach'
             ]
         );
     }
 
+    /**
+     * Binds Phergie events to the dispatcher
+     * @param  array  $binds Array of the binded events
+     * @return void
+     */
     protected function bindMethods(array $binds)
     {
         $self = $this;
