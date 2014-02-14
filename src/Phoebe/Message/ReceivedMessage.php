@@ -53,7 +53,7 @@ class ReceivedMessage extends ArrayObject
      * 
      * @return int|bool           Returns number of times when pattern matches or FALSE on error
      */
-    public function matchText($pattern, &$matches)
+    public function matchText($pattern, &$matches = [])
     {
         if (isset($this['params']['text'])) {
             return preg_match($pattern, $this['params']['text'], $matches);
