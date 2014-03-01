@@ -93,7 +93,11 @@ class UserInfoPlugin implements PluginInterface
         }
 
         $chan = $msg['params']['channel'];
-        $nicks = explode(' ', $msg['params']['all'], 3)[2];
+        $nicks = explode(' ', $msg['params']['all'], 3);
+        if (!isset($nicks[2])) {
+            return;
+        }
+        $nicks = $nicks[2];
         $modes = $msg['params']['mode'];
 
         if (!preg_match('/(?:\+|-)[hovaq+-]+/i', $modes)) {
