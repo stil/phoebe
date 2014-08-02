@@ -9,7 +9,7 @@ class PingPongPlugin implements PluginInterface
     public static function getSubscribedEvents()
     {
         return array(
-            'irc.received.PING' => array('onPing', 0)
+            'irc.received.PING' => ['onPing']
         );
     }
 

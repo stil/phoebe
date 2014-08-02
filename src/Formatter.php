@@ -119,7 +119,7 @@ class Formatter
                     }
 
                     $colors = [];
-                    if (0 === preg_match('/fg="(.+?)"(?: bg="(.+?)")?/', $attributes, $colors)) {
+                    if (0 === preg_match('/fg=["|\'](.+?)["|\'](?: bg=["|\'](.+?)["|\'])?/', $attributes, $colors)) {
                         throw new Exception('<color> has invalid attributes set.');
                     }
 

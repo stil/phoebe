@@ -37,6 +37,11 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
         );
 
         $this->assertValidFormat(
+            "Foo\x0304,12 bar",
+            "Foo<color fg='red' bg='blue'> bar"
+        );
+
+        $this->assertValidFormat(
             "Foo\x0310 bar",
             'Foo<color fg="teal"> bar'
         );

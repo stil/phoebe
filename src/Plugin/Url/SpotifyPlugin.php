@@ -23,17 +23,15 @@ class SpotifyPlugin implements PluginInterface
     public function __construct()
     {
         $this->queue = new cURL\RequestsQueue;
-        $this->queue->getDefaultOptions()->set(
-            array(
-                CURLOPT_RETURNTRANSFER  => true,
-                CURLOPT_CONNECTTIMEOUT  => 3,
-                CURLOPT_ENCODING        => ''
-            )
-        );
+        $this->queue->getDefaultOptions()->set([
+            CURLOPT_RETURNTRANSFER  => true,
+            CURLOPT_CONNECTTIMEOUT  => 3,
+            CURLOPT_ENCODING        => ''
+        ]);
         
         $this->queue->addListener(
             'complete',
-            array($this, 'dataReady')
+            [$this, 'dataReady']
         );
     }
     
@@ -75,16 +73,23 @@ class SpotifyPlugin implements PluginInterface
         $feed = $res->getContent();
         if ($code == 200 && !empty($feed)) {
             $feed = json_decode($feed, true);
-            $track = $feed['track'];
+            $track = &$feed['track'];
 
             $replace = [
-                '%title'    => Formatter::bold($track['artists'][0]['name'].' - '.Formatter::underline($track['name'])),
+                '%artist'   => $track['artists'][0]['name'],
+                '%track'    => $track['name'],
                 '%duration' => TimeDuration::get((int)$track['length']),
-                '%album'    => $track['album'] ? Formatter::bold($track['album']['name']).' ('.$track['album']['released'].')' : 'n/d'
+                '%album'    => $track['album'] ? $track['album']['name'] : 'n/d',
+                '%released' => $track['album']['released']
             ];
 
-            $response = ":: ".Formatter::bold(Formatter::color(' Spotify ', 'white', 'green'))." :: %title (%duration) :: Album: %album";
-            $writeStream->ircPrivmsg($channel, strtr($response, $replace));
+            $response = strtr(
+                '<b><color fg="white" bg="green"> Spotify </color></b>  '.
+                '<b>%artist - <u>%track</u></b> (%duration), album: <b>%album</b> (%released)',
+                $replace
+            );
+
+            $writeStream->ircPrivmsg($channel, Formatter::parse($response));
         }
     }
     

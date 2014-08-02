@@ -7,18 +7,27 @@ use Phergie\Irc\Client\React\WriteStream;
 
 class AutoJoinPlugin implements PluginInterface
 {
-    protected $channels = array();
+    protected $channels = [];
+    protected $autoTrigger;
 
     public static function getSubscribedEvents()
     {
-        return array(
-            'irc.received.001' => array('onWelcome', 0)
-        );
+        return ['irc.received.001' => ['onWelcome']];
+    }
+
+    /**
+     * @param boolean $autoTrigger Set FALSE when you want to manually trigger autojoin.
+     */
+    public function __construct($autoTrigger = true)
+    {
+        $this->autoTrigger = $autoTrigger;
     }
 
     public function onWelcome(Event $event)
     {
-        $this->joinChannels($event->getWriteStream());
+        if ($this->autoTrigger) {
+            $this->trigger($event->getWriteStream());
+        }
     }
 
     /**
@@ -26,7 +35,7 @@ class AutoJoinPlugin implements PluginInterface
      * @param  WriteStream $writeStream WriteStream object
      * @return void
      */
-    protected function joinChannels(WriteStream $writeStream)
+    public function trigger(WriteStream $writeStream)
     {
         foreach ($this->channels as $channel => $key) {
             $writeStream->ircJoin($channel, $key);

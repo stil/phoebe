@@ -48,3 +48,6 @@ $phoebe = new ConnectionManager();
 $phoebe->addConnection($freenode);
 $phoebe->run();
 ```
+
+Refer to [IRC numeric codes](https://www.alien.net.au/irc/irc2numerics.html) to recognize WHOIS responses.
+

@@ -23,18 +23,13 @@ class YouTubePlugin implements PluginInterface
     public function __construct()
     {
         $this->queue = new cURL\RequestsQueue;
-        $this->queue->getDefaultOptions()->set(
-            array(
-                CURLOPT_RETURNTRANSFER  => true,
-                CURLOPT_CONNECTTIMEOUT  => 3,
-                CURLOPT_ENCODING        => ''
-            )
-        );
+        $this->queue->getDefaultOptions()->set([
+            CURLOPT_RETURNTRANSFER  => true,
+            CURLOPT_CONNECTTIMEOUT  => 3,
+            CURLOPT_ENCODING        => ''
+        ]);
         
-        $this->queue->addListener(
-            'complete',
-            array($this, 'dataReady')
-        );
+        $this->queue->addListener('complete', [$this, 'dataReady']);
     }
     
     protected function socketPerform($timers)
@@ -82,7 +77,10 @@ class YouTubePlugin implements PluginInterface
                 '%likes'    => number_format($feed['entry']['yt$rating']['numLikes'], 0, '.', ','),
                 '%dislikes' => number_format($feed['entry']['yt$rating']['numDislikes'], 0, '.', ',')
             );
-            $response = ":: ".Formatter::bold(Formatter::color('You', 'black', 'white').Formatter::color('Tube', 'white', 'red'))." :: \x02%title\x02 (%duration) :: \x02%views\x02 views :: \x0303[+] %likes \x0304[-] %dislikes\x03 ::";
+
+            $response =
+                "\x02\x0301,00You\x0300,04Tube\x03  %title\x02 (%duration), \x02%views\x02 views,".
+                " \x0303\x02▲\x02 %likes \x0304\x02▼\x02 %dislikes\x03";
             $writeStream->ircPrivmsg($channel, strtr($response, $replace));
         }
     }

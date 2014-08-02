@@ -8,10 +8,10 @@ class NickServPlugin implements PluginInterface
 {
     public static function getSubscribedEvents()
     {
-        return array(
-            'irc.received.001'    => array('onWelcome', 0),
-            'irc.received.NOTICE' => array('onNotice', 0)
-        );
+        return [
+            'irc.received.001'    => ['onWelcome'],
+            'irc.received.NOTICE' => ['onNotice']
+        ];
     }
 
     public function __construct($password)

@@ -30,17 +30,17 @@ class EventBinder
     {
         $this->client = $client;
         $this->connectionManager = $cm;
-        $this->bindMethods(
-            [
+        $this->bindMethods([
             'irc.sent' => 'onIrcSent',
             'irc.received' => 'onIrcReceived',
+            'irc.tick' => 'onIrcTick',
+            'connect.end' => 'onConnectEnd',
             'connect.error' => 'onConnectError',
             'connect.before.all'  => 'onConnectBeforeAfterAll',
             'connect.before.each' => 'onConnectBeforeAfterEach',
             'connect.after.all'   => 'onConnectBeforeAfterAll',
             'connect.after.each'  => 'onConnectBeforeAfterEach'
-            ]
-        );
+        ]);
     }
 
     /**
@@ -92,10 +92,24 @@ class EventBinder
 
     protected function onIrcSent(array $args, $eventName)
     {
-        list($message, $connection, $logger) = $args;
+        list($message, $writeStream, $connection, $logger) = $args;
 
         $event = new Event();
         $event->setMessage($message);
+        $event->setWriteStream($writeStream);
+        $event->setConnection($connection);
+        $event->setLogger($logger);
+
+        $targets = [$this->connectionManager, $connection];
+        $this->dispatch($targets, [$eventName], $event);
+    }
+
+    protected function onIrcTick(array $args, $eventName)
+    {
+        list($writeStream, $connection, $logger) = $args;
+
+        $event = new Event();
+        $event->setWriteStream($writeStream);
         $event->setConnection($connection);
         $event->setLogger($logger);
 
@@ -120,6 +134,18 @@ class EventBinder
 
         $event = new Event();
         $event->setConnection($connection);
+
+        $targets = [$this->connectionManager, $connection];
+        $this->dispatch($targets, [$eventName], $event);
+    }
+
+    protected function onConnectEnd(array $args, $eventName)
+    {
+        list($connection, $logger) = $args;
+
+        $event = new Event();
+        $event->setConnection($connection);
+        $event->setLogger($logger);
 
         $targets = [$this->connectionManager, $connection];
         $this->dispatch($targets, [$eventName], $event);
