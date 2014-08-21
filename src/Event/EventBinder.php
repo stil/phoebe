@@ -36,10 +36,8 @@ class EventBinder
             'irc.tick' => 'onIrcTick',
             'connect.end' => 'onConnectEnd',
             'connect.error' => 'onConnectError',
-            'connect.before.all'  => 'onConnectBeforeAfterAll',
-            'connect.before.each' => 'onConnectBeforeAfterEach',
-            'connect.after.all'   => 'onConnectBeforeAfterAll',
-            'connect.after.each'  => 'onConnectBeforeAfterEach'
+            'connect.before.each' => 'onConnectBeforeEach',
+            'connect.after.each'  => 'onConnectAfterEach'
         ]);
     }
 
@@ -117,23 +115,24 @@ class EventBinder
         $this->dispatch($targets, [$eventName], $event);
     }
 
-    protected function onConnectBeforeAfterAll(array $args, $eventName)
-    {
-        list($connections) = $args;
-
-        $event = new Event();
-        $event->connections = $connections;
-
-        $targets = [$this->connectionManager];
-        $this->dispatch($targets, [$eventName], $event);
-    }
-
-    protected function onConnectBeforeAfterEach(array $args, $eventName)
+    protected function onConnectBeforeEach(array $args, $eventName)
     {
         list($connection) = $args;
 
         $event = new Event();
         $event->setConnection($connection);
+
+        $targets = [$this->connectionManager, $connection];
+        $this->dispatch($targets, [$eventName], $event);
+    }
+
+    protected function onConnectAfterEach(array $args, $eventName)
+    {
+        list($connection, $writeStream) = $args;
+
+        $event = new Event();
+        $event->setConnection($connection);
+        $event->setWriteStream($writeStream);
 
         $targets = [$this->connectionManager, $connection];
         $this->dispatch($targets, [$eventName], $event);

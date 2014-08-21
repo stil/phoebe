@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "a5c73335a861b7f204c3eab64f3b7bea",
+    "hash": "3200813f1faad0f98e26f6856659e547",
     "packages": [
         {
             "name": "evenement/evenement",
@@ -114,12 +114,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phergie/phergie-irc-client-react.git",
-                "reference": "9fd43f6aa8130e05e8baecaba2efeeb80c0dc818"
+                "reference": "87b88b8"
             },
             "dist": {
                 "type": "zip",
                 "url": "https://api.github.com/repos/phergie/phergie-irc-client-react/zipball/9fd43f6aa8130e05e8baecaba2efeeb80c0dc818",
-                "reference": "9fd43f6aa8130e05e8baecaba2efeeb80c0dc818",
+                "reference": "87b88b8",
                 "shasum": ""
             },
             "require": {
@@ -158,7 +158,7 @@
                 "irc",
                 "react"
             ],
-            "time": "2014-07-30 02:21:20"
+            "time": "2014-08-14 01:46:37"
         },
         {
             "name": "phergie/phergie-irc-connection",
@@ -599,17 +599,17 @@
         },
         {
             "name": "symfony/event-dispatcher",
-            "version": "v2.5.2",
+            "version": "v2.5.3",
             "target-dir": "Symfony/Component/EventDispatcher",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/EventDispatcher.git",
-                "reference": "2215d2ef6fd7ab24d55576a3d924df575c741762"
+                "reference": "8faf5cc7e80fde74a650a36e60d32ce3c3e0457b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/EventDispatcher/zipball/2215d2ef6fd7ab24d55576a3d924df575c741762",
-                "reference": "2215d2ef6fd7ab24d55576a3d924df575c741762",
+                "url": "https://api.github.com/repos/symfony/EventDispatcher/zipball/8faf5cc7e80fde74a650a36e60d32ce3c3e0457b",
+                "reference": "8faf5cc7e80fde74a650a36e60d32ce3c3e0457b",
                 "shasum": ""
             },
             "require": {
@@ -642,19 +642,17 @@
             ],
             "authors": [
                 {
-                    "name": "Fabien Potencier",
-                    "email": "fabien@symfony.com",
-                    "homepage": "http://fabien.potencier.org",
-                    "role": "Lead Developer"
-                },
-                {
                     "name": "Symfony Community",
                     "homepage": "http://symfony.com/contributors"
+                },
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
                 }
             ],
             "description": "Symfony EventDispatcher Component",
             "homepage": "http://symfony.com",
-            "time": "2014-07-09 09:05:48"
+            "time": "2014-07-28 13:20:46"
         }
     ],
     "packages-dev": [
