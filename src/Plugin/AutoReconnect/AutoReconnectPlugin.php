@@ -3,79 +3,50 @@ namespace Phoebe\Plugin\AutoReconnect;
 
 use Phoebe\Event\Event;
 use Phoebe\Plugin\PluginInterface;
-use SplObjectStorage;
 
 class AutoReconnectPlugin implements PluginInterface
 {
-    protected $debug;
-    protected $connections;
-    protected $pingTimeout = 240;
-    protected $reconnectDelay = 60;
+    protected $connectionTimeout = 180;
 
     public static function getSubscribedEvents()
     {
         return [
-            //'irc.received.PING'  => ['onPing'],
-            //'irc.received.001'  => ['onWelcome'],
-            'connect.error'  => ['onError']
+            'irc.tick' => ['onTick'],
+            'irc.received' => ['onActivity'],
         ];
     }
 
-    public function __construct()
+    public function setTimeout($timeout)
     {
-        $this->connections = new SplObjectStorage();
+        $this->connectionTimeout = $timeout;
     }
 
-    public function onWelcome(Event $event)
+    protected function extractState(Event $event)
     {
-        // Start tracking pings only after IRC welcome message
-        $this->connections[$event->getConnection()] = time();
-    }
-
-    public function onPing(Event $event)
-    {
-        $conn = $event->getConnection();
-        if (!isset($this->connections[$conn])) {
-            return; // ignore if there wasn't welcome message
+        $state = $event->getConnection()->getOption('state');
+        if ($state === null) {
+            $state = new ConnectionState();
+            $event->getConnection()->setOption('state', $state);
         }
-
-        $now = time();
-        $this->connections[$conn] = $now;
-        $event->getTimers()->setInterval(
-            function () use ($event, $now, $self) {
-                $before = $now;
-                $after = $self->lastPingTime[$event->getConnection()];
-                
-                $self->lastPingTime[$event->getConnection()] = time();
-
-                if ($before == $after) {
-                    $self->reconnect($event);
-                }
-            },
-            $this->pingTimeout
-        );
+        return $state;
     }
 
-    protected function reconnect($event)
+    public function onTick(Event $event)
     {
-        $hostname = $event->getConnection()->getServerHostname();
-        $event->getLogger()->debug(
-            "Connection to $hostname lost, attempting to reconnect in {$this->reconnectDelay} seconds.\n"
-        );
+        $state = $this->extractState($event);
 
-        $event->getTimers()->setTimeout(
-            function () use ($event) {
-                $event->getLogger()->debug("Reconnecting now...\n");
-                $event->getConnectionManager()->addConnection(
-                    $event->getConnection()
-                );
-            },
-            $this->reconnectDelay
-        );
+        if ($state->needsReconnect($this->connectionTimeout)) {
+            $event->getWriteStream()->ircQuit('Reconnecting...');
+            $event->getConnectionManager()->addConnection(
+                $event->getConnection()
+            );
+            $state->touch();
+        }
     }
 
-    public function onError(Event $event)
+    public function onActivity(Event $event)
     {
-        var_dump($event);
+        $state = $this->extractState($event);
+        $state->touch();
     }
 }
