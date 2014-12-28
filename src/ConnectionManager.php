@@ -11,19 +11,18 @@ class ConnectionManager
 
     /**
      * Phergie React Client
-     * @var Phergie\Irc\Client\React\Client
+     * @var Client
      */
     protected $client;
 
     /**
      * Timers object
-     * @var Phoebe\Timers
+     * @var Timers
      */
     protected $timers;
 
     /**
      * Creates instance of Phergie React Client
-     * @return void
      */
     public function __construct()
     {
@@ -36,7 +35,7 @@ class ConnectionManager
 
     /**
      * Returns Phergie's Client instance
-     * @return Phergie\Irc\Client\React\Client Client instance
+     * @return Client Client instance
      */
     public function getClient()
     {
@@ -45,7 +44,7 @@ class ConnectionManager
 
     /**
      * Returns Timers instance
-     * @return Phoebe\Timers Timers instance
+     * @return Timers Timers instance
      */
     public function getTimers()
     {

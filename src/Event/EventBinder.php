@@ -3,20 +3,19 @@ namespace Phoebe\Event;
 
 use Phergie\Irc\Client\React\Client;
 use Phoebe\ConnectionManager;
-use Phoebe\Event\Event;
 use Phoebe\Message\ReceivedMessage;
 
 class EventBinder
 {
     /**
      * Instance of Phergie client
-     * @var Phergie\Irc\Client\React\Client
+     * @var Client
      */
     protected $client;
 
     /**
      * Instance of Phoebe connection manager
-     * @var Phoebe\ConnectionManager
+     * @var ConnectionManager
      */
     protected $connectionManager;
 

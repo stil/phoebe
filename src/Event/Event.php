@@ -69,8 +69,6 @@ class Event extends SymfonyEvent
 
     /**
      * Returns instance of Timers
-     * 
-     * @param Timers $timers
      */
     public function getTimers()
     {
