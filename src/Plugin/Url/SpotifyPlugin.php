@@ -9,7 +9,7 @@ use Exception;
 
 class SpotifyPlugin implements PluginInterface
 {
-    protected $pattern = '#(?:spotify:track:|http\:\/\/open\.spotify\.com\/track\/)([a-zA-Z0-9]+)#';
+    protected $pattern = '#(?:spotify:track:|https?\:\/\/open\.spotify\.com\/track\/)([a-zA-Z0-9]+)#';
     protected $active  = false;
     protected $queue;
     
