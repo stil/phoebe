@@ -6,12 +6,9 @@
     "prefer-stable": true,
     "require": {
         "php": ">=5.4",
-        "phergie/phergie-irc-client-react": "~2.0.0",
+        "phergie/phergie-irc-client-react": "~2.1.0",
         "symfony/event-dispatcher": "~2.5",
         "stil/curl-easy": "~1.1.0"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "~4.4.0"
     },
     "autoload": {
         "psr-4": {
