@@ -16,4 +16,19 @@ class TimeDuration
         $result .= str_pad($seconds, 2, '0', STR_PAD_LEFT);
         return $result;
     }
+
+    public static function format(\DateInterval $interval)
+    {
+        $string = $interval->format('%I:%S');
+
+        if ($interval->h > 0) {
+            $string = $interval->format('%H:').$string;
+        }
+
+        if ($interval->d > 0) {
+            $string = $interval->format('%D:').$string;
+        }
+
+        return $string;
+    }
 }

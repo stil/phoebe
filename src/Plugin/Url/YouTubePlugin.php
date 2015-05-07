@@ -1,28 +1,50 @@
 <?php
 namespace Phoebe\Plugin\Url;
 
+use Phergie\Irc\Client\React\WriteStream;
 use Phoebe\Event\Event;
-use Phoebe\Formatter;
 use Phoebe\Plugin\PluginInterface;
 use cURL;
 use Exception;
+use Phoebe\Timers;
 
 class YouTubePlugin implements PluginInterface
 {
+    /**
+     * @var string
+     */
     protected $pattern = '%(?:youtube\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/)([^"&?/ ]{11})%i';
+
+    /**
+     * @var bool
+     */
     protected $active  = false;
+
+    /**
+     * @var string
+     */
+    protected $apiKey;
+
+    /**
+     * @var cURL\RequestsQueue
+     */
     protected $queue;
 
+    /**
+     * @return array
+     */
     public static function getSubscribedEvents()
     {
-        return [
-            'irc.received.PRIVMSG' => ['onMessage']
-        ];
+        return ['irc.received.PRIVMSG' => ['onMessage']];
     }
-    
-    public function __construct()
+
+    /**
+     * @param string $apiKey Google API key. More information: https://developers.google.com/console/help/#generatingdevkeys
+     */
+    public function __construct($apiKey)
     {
-        $this->queue = new cURL\RequestsQueue;
+        $this->apiKey = $apiKey;
+        $this->queue = new cURL\RequestsQueue();
         $this->queue->getDefaultOptions()->set([
             CURLOPT_RETURNTRANSFER  => true,
             CURLOPT_CONNECTTIMEOUT  => 3,
@@ -32,27 +54,28 @@ class YouTubePlugin implements PluginInterface
         $this->queue->addListener('complete', [$this, 'dataReady']);
     }
     
-    protected function socketPerform($timers)
+    protected function socketPerform(Timers $timers)
     {
-        $self = $this;
         try {
-            $active = $this->queue->socketPerform();
+            if ($this->queue->socketPerform()) {
+                $timers->setTimeout(function () use ($timers) {
+                    $this->socketPerform($timers);
+                }, 0.1);
+            }
         } catch (Exception $e) {
 
         }
-        if ($active) {
-            $timers->setTimeout(
-                function () use ($self, $timers) {
-                    $self->socketPerform($timers);
-                },
-                0.1
-            );
-        }
     }
     
-    public function getFeed($videoId, $channel, $writeStream, $timers)
+    public function getFeed($videoId, $channel, WriteStream $writeStream, Timers $timers)
     {
-        $ch = new cURL\Request('http://gdata.youtube.com/feeds/api/videos/'.$videoId.'?v=2&alt=json');
+        $query = http_build_query([
+            'id' => $videoId,
+            'part' => 'snippet,contentDetails,statistics',
+            'key' => $this->apiKey
+        ]);
+
+        $ch = new cURL\Request('https://www.googleapis.com/youtube/v3/videos?'.$query);
         $ch->_chan = $channel;
         $ch->_writeStream = $writeStream;
         $this->queue->attach($ch);
@@ -70,12 +93,19 @@ class YouTubePlugin implements PluginInterface
         $feed = $res->getContent();
         if ($code == 200 && !empty($feed)) {
             $feed = json_decode($feed, true);
+
+            if (!isset($feed['items'][0])) {
+                return;
+            }
+
+            $item = $feed['items'][0];
+            $duration = new \DateInterval($item['contentDetails']['duration']);
             $replace = array(
-                '%title'    => $feed['entry']['title']['$t'],
-                '%views'    => $this->formatBigNumber($feed['entry']['yt$statistics']['viewCount']),
-                '%duration' => TimeDuration::get($feed['entry']['media$group']['yt$duration']['seconds']),
-                '%likes'    => number_format($feed['entry']['yt$rating']['numLikes'], 0, '.', ','),
-                '%dislikes' => number_format($feed['entry']['yt$rating']['numDislikes'], 0, '.', ',')
+                '%title'    => $item['snippet']['title'],
+                '%views'    => $this->formatBigNumber($item['statistics']['viewCount']),
+                '%duration' => TimeDuration::format($duration),
+                '%likes'    => number_format($item['statistics']['likeCount'], 0, '.', ','),
+                '%dislikes' => number_format($item['statistics']['dislikeCount'], 0, '.', ',')
             );
 
             $response =
@@ -85,14 +115,14 @@ class YouTubePlugin implements PluginInterface
         }
     }
 
-    
     public function onMessage(Event $event)
     {
         $msg = $event->getMessage();
+        $matches = [];
         if ($msg->isInChannel() && $msg->matchText($this->pattern, $matches)) {
-            $id = $matches[1];
+            $videoId = $matches[1];
             $this->getFeed(
-                $id,
+                $videoId,
                 $msg->getSource(),
                 $event->getWriteStream(),
                 $event->getTimers()
