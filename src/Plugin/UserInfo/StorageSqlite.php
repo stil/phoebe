@@ -25,9 +25,7 @@ class StorageSqlite implements StorageInterface
 
     public function clear()
     {
-        $this->db->exec(
-            'DELETE FROM users'
-        );
+        $this->db->exec('DELETE FROM users');
     }
 
     public function setUserMode($nickname, $channel, $mode)

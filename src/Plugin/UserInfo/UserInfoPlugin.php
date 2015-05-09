@@ -19,6 +19,22 @@ class UserInfoPlugin implements PluginInterface
     const ADMIN   = 16;
     const OWNER   = 32;
 
+    protected static $modesNum = [
+        'q' => self::OWNER,
+        'a' => self::ADMIN,
+        'o' => self::OP,
+        'h' => self::HALFOP,
+        'v' => self::VOICE
+    ];
+
+    protected static $modesPrefix = [
+        '~' => 'q',
+        '&' => 'a',
+        '@' => 'o',
+        '%' => 'h',
+        '+' => 'v'
+    ];
+
     public static function getSubscribedEvents()
     {
         return [
@@ -43,7 +59,7 @@ class UserInfoPlugin implements PluginInterface
     /**
      * An object handling all the user information on different channels
      *
-     * @var Storage
+     * @var StorageInterface
      */
     protected $storage;
 
@@ -58,7 +74,7 @@ class UserInfoPlugin implements PluginInterface
     }
 
     /**
-     * Prepares storage object
+     * @param StorageInterface $storage
      */
     public function __construct(StorageInterface $storage = null)
     {
@@ -72,62 +88,39 @@ class UserInfoPlugin implements PluginInterface
 
     /**
      * Clears storage
-     * 
-     * @param  Event  $event Event object
      */
-    public function onWelcome(Event $event)
+    public function onWelcome()
     {
         $this->storage->clear();
     }
 
     /**
-     * Tracks mode changes
+     * Tracks user mode changes
      *
      * @param  Event  $event Event object
      */
     public function onMode(Event $event)
     {
         $msg = $event->getMessage();
-        if (!isset($msg['params']['channel'])) {
+        $params = $msg['params'];
+
+        $isValidMessage =
+            isset($params['channel'], $params['params']) &&
+            preg_match('/(?:\+|-)[hovaq+-]+/i', $params['mode'])
+        ;
+
+        if (!$isValidMessage) {
             return;
         }
 
-        $chan = $msg['params']['channel'];
-        $nicks = explode(' ', $msg['params']['all'], 3);
-        if (!isset($nicks[2])) {
-            return;
-        }
-        $nicks = $nicks[2];
-        $modes = $msg['params']['mode'];
+        $chan = $params['channel'];
+        $nicks = explode(' ', $params['params']);
+        $modes = str_split($params['mode'], 1);
 
-        if (!preg_match('/(?:\+|-)[hovaq+-]+/i', $modes)) {
-            return;
-        }
-
-        $modes = str_split(trim(strtolower($modes)), 1);
-        $nicks = explode(' ', trim($nicks));
         $operation = array_shift($modes); // + or -
-
         while ($char = array_shift($modes)) {
             $nick = array_shift($nicks);
-
-            switch ($char) {
-                case 'q':
-                    $mode = self::OWNER;
-                    break;
-                case 'a':
-                    $mode = self::ADMIN;
-                    break;
-                case 'o':
-                    $mode = self::OP;
-                    break;
-                case 'h':
-                    $mode = self::HALFOP;
-                    break;
-                case 'v':
-                    $mode = self::VOICE;
-                    break;
-            }
+            $mode = self::$modesNum[$char];
 
             $userMode = $this->storage->getUserMode($nick, $chan);
             if (!$userMode) {
@@ -226,34 +219,19 @@ class UserInfoPlugin implements PluginInterface
     public function onNameReply(Event $event)
     {
         $msg = $event->getMessage();
-        $chan = $msg['params'][3];
-        $names = explode(' ', $msg['params'][4]);
+        $chan = $msg['params'][2];
+        $names = explode(' ', $msg['params'][3]);
 
         foreach ($names as $nick) {
-            $flag = self::REGULAR;
-            switch ($nick[0]) {
-                case '~':
-                    $flag |= self::OWNER;
-                    break;
-                case '&':
-                    $flag |= self::ADMIN;
-                    break;
-                case '@':
-                    $flag |= self::OP;
-                    break;
-                case '%':
-                    $flag |= self::HALFOP;
-                    break;
-                case '+':
-                    $flag |= self::VOICE;
-                    break;
-            }
+            $mode = self::REGULAR;
+            $prefix = $nick[0];
 
-            if ($flag != self::REGULAR) {
+            if (isset(self::$modesPrefix[$prefix])) {
+                $mode |= self::$modesNum[self::$modesPrefix[$prefix]];
                 $nick = substr($nick, 1);
             }
 
-            $this->storage->setUserMode($nick, $chan, $flag);
+            $this->storage->setUserMode($nick, $chan, $mode);
         }
     }
 
@@ -277,22 +255,26 @@ class UserInfoPlugin implements PluginInterface
             $writeStream->ircPrivmsg($target, $msg);
         };
 
+        $m = [];
         $match = function ($pattern, &$m) use ($msg) {
             return preg_match($pattern, $msg, $m);
         };
 
         if ($match('#^ishere (\S+)$#', $m)) {
             $send($this->isIn($m[1], $target) ? 'true' : 'false');
-        } elseif ($match('#^isowner (\S+)$#', $m)) {
-            $send($this->isOwner($m[1], $target) ? 'true' : 'false');
-        } elseif ($match('#^isadmin (\S+)$#', $m)) {
-            $send($this->isAdmin($m[1], $target) ? 'true' : 'false');
-        } elseif ($match('#^isop (\S+)$#', $m)) {
-            $send($this->isOp($m[1], $target) ? 'true' : 'false');
-        } elseif ($match('#^ishop (\S+)$#', $m)) {
-            $send($this->isHalfop($m[1], $target) ? 'true' : 'false');
-        } elseif ($match('#^isvoice (\S+)$#', $m)) {
-            $send($this->isVoice($m[1], $target) ? 'true' : 'false');
+        } elseif ($match('#^users (\S+)$#', $m)) {
+            $chan = $m[1];
+            $nicks = $this->getUsers($chan);
+            foreach ($nicks as &$nick) {
+                $prefix = '';
+                foreach (self::$modesNum as $mode => $modeNum) {
+                    if ($this->is($modeNum, $nick, $chan)) {
+                        $prefix .= array_search($mode, self::$modesPrefix);
+                    }
+                }
+                $nick = $prefix.$nick;
+            }
+            $send($nicks ? join(', ', $nicks) : 'unable to find channel');
         } elseif ($match('#^channels (\S+)$#', $m)) {
             $channels = $this->getChannels($m[1]);
             $send($channels ? join(', ', $channels) : 'unable to find nick');
@@ -339,7 +321,7 @@ class UserInfoPlugin implements PluginInterface
     }
 
     /**
-     * Checks whether or not a given user has admin (&) status
+     * Checks whether or not a given user has admin (&) mode
      *
      * @param string $nick The nick to check
      * @param string $chan The channel to check in
@@ -352,7 +334,7 @@ class UserInfoPlugin implements PluginInterface
     }
 
     /**
-     * Checks whether or not a given user has operator (@) status
+     * Checks whether or not a given user has operator (@) mode
      *
      * @param string $nick The nick to check
      * @param string $chan The channel to check in
@@ -365,7 +347,7 @@ class UserInfoPlugin implements PluginInterface
     }
 
     /**
-     * Checks whether or not a given user has halfop (%) status
+     * Checks whether or not a given user has halfop (%) mode
      *
      * @param string $nick The nick to check
      * @param string $chan The channel to check in
@@ -378,7 +360,7 @@ class UserInfoPlugin implements PluginInterface
     }
 
     /**
-     * Checks whether or not a given user has voice (+) status
+     * Checks whether or not a given user has voice (+) mode
      *
      * @param string $nick The nick to check
      * @param string $chan The channel to check in
