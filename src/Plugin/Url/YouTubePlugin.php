@@ -130,8 +130,16 @@ class YouTubePlugin implements PluginInterface
         }
     }
 
+    /**
+     * @param $n
+     * @return string
+     */
     public static function formatBigNumber($n)
     {
+        if ($n < 1000) {
+            return $n;
+        }
+
         $base = floor(log($n) / log(1000));
         $base = $base > 2 ? 2 : $base;
         $suffix = ['', 'k', 'M'][$base];
