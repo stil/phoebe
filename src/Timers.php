@@ -6,8 +6,14 @@ use React\EventLoop\Timer\TimerInterface;
 
 class Timers
 {
+    /**
+     * @var LoopInterface
+     */
     protected $loop;
 
+    /**
+     * @param LoopInterface $loop
+     */
     public function __construct(LoopInterface $loop)
     {
         $this->loop = $loop;
@@ -38,10 +44,9 @@ class Timers
     /**
      * Cancels previously set timer
      * @param  TimerInterface $timer Timer object to cancel
-     * @return void
      */
     public function cancel($timer)
     {
-        return $this->loop->cancelTimer($timer);
+        $this->loop->cancelTimer($timer);
     }
 }

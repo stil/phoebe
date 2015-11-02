@@ -58,6 +58,11 @@ class EventBinder
         }
     }
 
+    /**
+     * @param EventDispatcherAwareInterface[] $targets
+     * @param string[] $eventNames
+     * @param Event $event
+     */
     protected function dispatch(array $targets, array $eventNames, Event $event)
     {
         $event->setConnectionManager($this->connectionManager);
@@ -71,6 +76,10 @@ class EventBinder
         }
     }
 
+    /**
+     * @param array $args
+     * @param string $eventName
+     */
     protected function onIrcReceived(array $args, $eventName)
     {
         list($message, $writeStream, $connection, $logger) = $args;
@@ -87,6 +96,10 @@ class EventBinder
         $this->dispatch($targets, $eventNames, $event);
     }
 
+    /**
+     * @param array $args
+     * @param string $eventName
+     */
     protected function onIrcSent(array $args, $eventName)
     {
         list($message, $writeStream, $connection, $logger) = $args;
@@ -101,6 +114,10 @@ class EventBinder
         $this->dispatch($targets, [$eventName], $event);
     }
 
+    /**
+     * @param array $args
+     * @param string $eventName
+     */
     protected function onIrcTick(array $args, $eventName)
     {
         list($writeStream, $connection, $logger) = $args;
@@ -114,6 +131,10 @@ class EventBinder
         $this->dispatch($targets, [$eventName], $event);
     }
 
+    /**
+     * @param array $args
+     * @param string $eventName
+     */
     protected function onConnectBeforeEach(array $args, $eventName)
     {
         list($connection) = $args;
@@ -125,18 +146,26 @@ class EventBinder
         $this->dispatch($targets, [$eventName], $event);
     }
 
+    /**
+     * @param array $args
+     * @param string $eventName
+     */
     protected function onConnectAfterEach(array $args, $eventName)
     {
         list($connection, $writeStream) = $args;
 
         $event = new Event();
         $event->setConnection($connection);
-        $event->setWriteStream($writeStream);
+        //$event->setWriteStream($writeStream);
 
         $targets = [$this->connectionManager, $connection];
         $this->dispatch($targets, [$eventName], $event);
     }
 
+    /**
+     * @param array $args
+     * @param string $eventName
+     */
     protected function onConnectEnd(array $args, $eventName)
     {
         list($connection, $logger) = $args;
@@ -149,6 +178,10 @@ class EventBinder
         $this->dispatch($targets, [$eventName], $event);
     }
 
+    /**
+     * @param array $args
+     * @param string $eventName
+     */
     protected function onConnectError(array $args, $eventName)
     {
         list($message, $connection, $logger) = $args;

@@ -3,26 +3,25 @@ namespace Phoebe;
 
 use Phergie\Irc\Client\React\Client;
 use Phoebe\Event\EventBinder;
-use Phoebe\Event\EventDispatcherTrait;
+use Phoebe\Event\EventDispatcherAwareInterface;
+use Phoebe\Event\EventDispatcherAwareTrait;
 
-class ConnectionManager
+class ConnectionManager implements EventDispatcherAwareInterface
 {
-    use EventDispatcherTrait;
+    use EventDispatcherAwareTrait;
 
     /**
-     * Phergie React Client
      * @var Client
      */
     protected $client;
 
     /**
-     * Timers object
      * @var Timers
      */
     protected $timers;
 
     /**
-     * Creates instance of Phergie React Client
+     * Creates instance of Phergie React Client and binds events
      */
     public function __construct()
     {
@@ -34,8 +33,7 @@ class ConnectionManager
     }
 
     /**
-     * Returns Phergie's Client instance
-     * @return Client Client instance
+     * @return Client
      */
     public function getClient()
     {
@@ -43,8 +41,7 @@ class ConnectionManager
     }
 
     /**
-     * Returns Timers instance
-     * @return Timers Timers instance
+     * @return Timers
      */
     public function getTimers()
     {
@@ -52,18 +49,16 @@ class ConnectionManager
     }
 
     /**
-     * Adds connection to Client
-     * @param Connection $connection Connection instance
+     * @param ConnectionInterface $connection
      * @return void
      */
-    public function addConnection(Connection $connection)
+    public function addConnection(ConnectionInterface $connection)
     {
         $this->client->addConnection($connection);
     }
 
     /**
-     * Starts the bot
-     * @param  Connection[] $connections Array containing connections to add
+     * @param ConnectionInterface[] $connections
      * @return void
      */
     public function run(array $connections = [])
