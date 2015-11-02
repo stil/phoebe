@@ -6,16 +6,20 @@ use Phoebe\Plugin\PluginInterface;
 
 class PingPongPlugin implements PluginInterface
 {
+    /**
+     * @return array
+     */
     public static function getSubscribedEvents()
     {
-        return array(
-            'irc.received.PING' => ['onPing']
-        );
+        return ['irc.received.PING' => ['onPing']];
     }
 
+    /**
+     * @param Event $event
+     */
     public function onPing(Event $event)
     {
-        $pongMessage = $event->getMessage()['params']['all'];
+        $pongMessage = $event->getMessage()['params']['server1'];
         $event->getWriteStream()->ircPong($pongMessage);
     }
 }
