@@ -3,6 +3,8 @@ namespace Phoebe\Plugin\Url;
 
 use Phergie\Irc\Client\React\WriteStream;
 use Phoebe\Event\Event;
+use Phoebe\FloodProtection\RateLimit;
+use Phoebe\FloodProtection\Throttling;
 use Phoebe\Plugin\PluginInterface;
 use cURL;
 use Exception;
@@ -31,6 +33,11 @@ class YouTubePlugin implements PluginInterface
     protected $queue;
 
     /**
+     * @var Throttling
+     */
+    protected $throttling;
+
+    /**
      * @return array
      */
     public static function getSubscribedEvents()
@@ -39,10 +46,14 @@ class YouTubePlugin implements PluginInterface
     }
 
     /**
-     * @param string $apiKey Google API key. More information: https://developers.google.com/console/help/#generatingdevkeys
+     * @param string $apiKey Google API key.
+     * More information: https://developers.google.com/console/help/#generatingdevkeys
      */
     public function __construct($apiKey)
     {
+        $this->throttling = new Throttling();
+        $this->throttling->addRateLimit(new RateLimit(2, 10));
+
         $this->apiKey = $apiKey;
         $this->queue = new cURL\RequestsQueue();
         $this->queue->getDefaultOptions()->set([
@@ -53,7 +64,26 @@ class YouTubePlugin implements PluginInterface
         
         $this->queue->addListener('complete', [$this, 'dataReady']);
     }
-    
+
+    /**
+     * @return Throttling
+     */
+    public function getThrottling()
+    {
+        return $this->throttling;
+    }
+
+    /**
+     * @param Throttling $throttling
+     */
+    public function setThrottling($throttling)
+    {
+        $this->throttling = $throttling;
+    }
+
+    /**
+     * @param Timers $timers
+     */
     protected function socketPerform(Timers $timers)
     {
         try {
@@ -63,10 +93,15 @@ class YouTubePlugin implements PluginInterface
                 }, 0.1);
             }
         } catch (Exception $e) {
-
         }
     }
-    
+
+    /**
+     * @param string $videoId
+     * @param string $channel
+     * @param WriteStream $writeStream
+     * @param Timers $timers
+     */
     public function getFeed($videoId, $channel, WriteStream $writeStream, Timers $timers)
     {
         $query = http_build_query([
@@ -82,9 +117,15 @@ class YouTubePlugin implements PluginInterface
 
         $this->socketPerform($timers);
     }
-    
+
+    /**
+     * @param cURL\Event $event
+     */
     public function dataReady(cURL\Event $event)
     {
+        /**
+         * @var WriteStream $writeStream
+         */
         $writeStream = $event->request->_writeStream;
         $channel = $event->request->_chan;
 
@@ -101,7 +142,7 @@ class YouTubePlugin implements PluginInterface
             $item = $feed['items'][0];
             $duration = new \DateInterval($item['contentDetails']['duration']);
             $replace = array(
-                '%title'    => $item['snippet']['title'],
+                '%title'    => $this->stripUrl($item['snippet']['title']),
                 '%views'    => $this->formatBigNumber($item['statistics']['viewCount']),
                 '%duration' => TimeDuration::format($duration),
                 '%likes'    => number_format($item['statistics']['likeCount'], 0, '.', ','),
@@ -115,12 +156,30 @@ class YouTubePlugin implements PluginInterface
         }
     }
 
+    /**
+     * Strips video URL, preventing bot wars.
+     * @param string $title
+     * @return string
+     */
+    protected function stripUrl($title)
+    {
+        return preg_replace($this->pattern, '', $title);
+    }
+
+    /**
+     * @param Event $event
+     */
     public function onMessage(Event $event)
     {
+        if ($this->throttling->limitsExceeded()) {
+            return;
+        }
+
         $msg = $event->getMessage();
         $matches = [];
         if ($msg->isInChannel() && $msg->matchText($this->pattern, $matches)) {
             $videoId = $matches[1];
+            $this->throttling->tick();
             $this->getFeed(
                 $videoId,
                 $msg->getSource(),
