@@ -17,11 +17,12 @@ $events->addSubscriber(new PingPongPlugin());
 
 // Create AutoJoinPlugin instance
 $autoJoin = new AutoJoinPlugin();
+$list = $autoJoin->getList();
 
 // Add some channels to autojoin list
-$autoJoin->addChannel('#news');
-$autoJoin->addChannel('#help');
-$autoJoin->addChannel('#secret', 'password');
+$list->addChannel('#news');
+$list->addChannel('#help');
+$list->addChannel('#secret', 'password');
 
 // Add instance of plugin to created connection
 $events->addSubscriber($autoJoin);
@@ -31,11 +32,12 @@ $events->addSubscriber($autoJoin);
 ```php
 // Create AutoJoinPlugin instance, but configure it to NOT trigger automatically
 $autoJoin = new AutoJoinPlugin(false);
+$list = $autoJoin->getList();
 
 // Add some channels to autojoin list
-$autoJoin->addChannel('#news');
-$autoJoin->addChannel('#help');
-$autoJoin->addChannel('#secret', 'password');
+$list->addChannel('#news');
+$list->addChannel('#help');
+$list->addChannel('#secret', 'password');
 
 // Add instance of plugin to created connection
 $events->addSubscriber($autoJoin);
