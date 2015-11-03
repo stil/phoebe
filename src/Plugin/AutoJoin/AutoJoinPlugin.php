@@ -7,9 +7,19 @@ use Phergie\Irc\Client\React\WriteStream;
 
 class AutoJoinPlugin implements PluginInterface
 {
-    protected $channels = [];
+    /**
+     * @var AutoJoinList
+     */
+    protected $list;
+
+    /**
+     * @var bool
+     */
     protected $autoTrigger;
 
+    /**
+     * @return array
+     */
     public static function getSubscribedEvents()
     {
         return ['irc.received.001' => ['onWelcome']];
@@ -21,8 +31,12 @@ class AutoJoinPlugin implements PluginInterface
     public function __construct($autoTrigger = true)
     {
         $this->autoTrigger = $autoTrigger;
+        $this->list = new AutoJoinList();
     }
 
+    /**
+     * @param Event $event
+     */
     public function onWelcome(Event $event)
     {
         if ($this->autoTrigger) {
@@ -37,50 +51,24 @@ class AutoJoinPlugin implements PluginInterface
      */
     public function trigger(WriteStream $writeStream)
     {
-        foreach ($this->channels as $channel => $key) {
+        foreach ($this->list as $channel => $key) {
             $writeStream->ircJoin($channel, $key);
         }
     }
 
     /**
-     * Add channel to auto join
-     * @param string $channel Channel to auto join
-     * @param null|string $key     Channel password. NULL when ommited
-     * @return void
+     * @return AutoJoinList
      */
-    public function addChannel($channel, $key = null)
+    public function getList()
     {
-        $this->channels[$channel] = $key;
+        return $this->list;
     }
 
     /**
-     * Add channels to auto join
-     * @param array $channels Array of channels to join. Available formats:
-     *                        array('#channel1', '#channel2') or
-     *                        array('#channel1', '#channel2' => 'password') or
-     *                        array('#channel1' => null, '#channel2' => 'password')
-     * @return void
+     * @param AutoJoinList $list
      */
-    public function addChannels($channels)
+    public function setList($list)
     {
-        foreach ($channels as $k => $v) {
-            if (preg_match('/^[0-9]+$/', $k)) {
-                $this->addChannel($v);
-            } else {
-                $this->addChannel($k, $v);
-            }
-        }
-    }
-
-    /**
-     * Removes channel from auto join list
-     * @param  string $channel Channel name
-     * @return void
-     */
-    public function removeChannel($channel)
-    {
-        if (isset($this->channels)) {
-            unset($this->channels[$channel]);
-        }
+        $this->list = $list;
     }
 }
