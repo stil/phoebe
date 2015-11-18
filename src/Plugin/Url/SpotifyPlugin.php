@@ -1,7 +1,6 @@
 <?php
 namespace Phoebe\Plugin\Url;
 
-use Phergie\Irc\Client\React\WriteStream;
 use Phoebe\Formatter;
 use cURL;
 
@@ -17,15 +16,14 @@ class SpotifyPlugin extends UrlPlugin
 
     /**
      * @param array $matches
-     * @param string $channel
-     * @param WriteStream $writeStream
+     * @param ChannelContext $context
      */
-    public function processMessage(array $matches, $channel, WriteStream $writeStream)
+    public function processMessage(array $matches, ChannelContext $context)
     {
         $uri = $matches[1];
         $req = new cURL\Request('http://ws.spotify.com/lookup/1/.json?uri=spotify:track:'.$uri);
-        $req->addListener('complete', function (cURL\Event $event) use ($writeStream, $channel) {
-            $this->onRequestComplete($event, $channel, $writeStream);
+        $req->addListener('complete', function (cURL\Event $event) use ($context) {
+            $this->onRequestComplete($event, $context);
         });
 
         $this->sendRequest($req);
@@ -33,10 +31,9 @@ class SpotifyPlugin extends UrlPlugin
 
     /**
      * @param cURL\Event $event
-     * @param string $channel
-     * @param WriteStream $writeStream
+     * @param ChannelContext $context
      */
-    public function onRequestComplete(cURL\Event $event, $channel, WriteStream $writeStream)
+    public function onRequestComplete(cURL\Event $event, ChannelContext $context)
     {
         $res = $event->response;
         $code = $res->getInfo(CURLINFO_HTTP_CODE);
@@ -63,6 +60,6 @@ class SpotifyPlugin extends UrlPlugin
             $replace
         );
 
-        $writeStream->ircPrivmsg($channel, Formatter::parse($response));
+        $context->send(Formatter::parse($response));
     }
 }

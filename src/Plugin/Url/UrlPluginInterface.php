@@ -1,8 +1,6 @@
 <?php
 namespace Phoebe\Plugin\Url;
 
-use Phergie\Irc\Client\React\WriteStream;
-
 interface UrlPluginInterface
 {
     /**
@@ -12,8 +10,7 @@ interface UrlPluginInterface
 
     /**
      * @param array $matches
-     * @param string $channel
-     * @param WriteStream $writeStream
+     * @param ChannelContext $context
      */
-    public function processMessage(array $matches, $channel, WriteStream $writeStream);
+    public function processMessage(array $matches, ChannelContext $context);
 }

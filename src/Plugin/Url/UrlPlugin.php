@@ -74,7 +74,7 @@ abstract class UrlPlugin implements UrlPluginInterface, PluginInterface
         $msg = $event->getMessage();
         $matches = [];
         if ($msg->isInChannel() && $msg->matchText($this->getMessagePattern(), $matches)) {
-            $this->processMessage($matches, $msg->getSource(), $event->getWriteStream());
+            $this->processMessage($matches, new ChannelContext($event));
         }
     }
 }

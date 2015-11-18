@@ -1,7 +1,6 @@
 <?php
 namespace Phoebe\Plugin\Url;
 
-use Phergie\Irc\Client\React\WriteStream;
 use Phoebe\Plugin\Async\HttpAsyncPlugin;
 use cURL;
 
@@ -11,6 +10,12 @@ class YouTubePlugin extends UrlPlugin
      * @var string
      */
     protected $apiKey;
+
+    /**
+     * @var string
+     */
+    protected static $anyUrlPattern = '/((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|'.
+        '[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)/';
 
     /**
      * @param HttpAsyncPlugin $async
@@ -33,10 +38,9 @@ class YouTubePlugin extends UrlPlugin
 
     /**
      * @param array $matches
-     * @param string $channel
-     * @param WriteStream $writeStream
+     * @param ChannelContext $context
      */
-    public function processMessage(array $matches, $channel, WriteStream $writeStream)
+    public function processMessage(array $matches, ChannelContext $context)
     {
         $videoId = $matches[1];
 
@@ -47,8 +51,8 @@ class YouTubePlugin extends UrlPlugin
         ]);
 
         $req = new cURL\Request('https://www.googleapis.com/youtube/v3/videos?' . $query);
-        $req->addListener('complete', function (cURL\Event $event) use ($writeStream, $channel) {
-            $this->onRequestComplete($event, $channel, $writeStream);
+        $req->addListener('complete', function (cURL\Event $event) use ($context) {
+            $this->onRequestComplete($event, $context);
         });
 
         $this->sendRequest($req);
@@ -56,10 +60,9 @@ class YouTubePlugin extends UrlPlugin
 
     /**
      * @param cURL\Event $event
-     * @param $channel
-     * @param WriteStream $writeStream
+     * @param ChannelContext $context
      */
-    public function onRequestComplete(cURL\Event $event, $channel, WriteStream $writeStream)
+    public function onRequestComplete(cURL\Event $event, ChannelContext $context)
     {
         $res = $event->response;
         $code = $res->getInfo(CURLINFO_HTTP_CODE);
@@ -77,8 +80,14 @@ class YouTubePlugin extends UrlPlugin
 
         $item = $feed['items'][0];
         $duration = new \DateInterval($item['contentDetails']['duration']);
+
+        if (preg_match(self::$anyUrlPattern, $item['snippet']['title'])) {
+            $context->getLogger()->notice("Blocked possible YouTube loop.");
+            return;
+        }
+
         $replace = array(
-            '%title'    => $this->stripUrl($item['snippet']['title']),
+            '%title'    => $item['snippet']['title'],
             '%views'    => $this->formatBigNumber($item['statistics']['viewCount']),
             '%duration' => TimeDuration::format($duration),
             '%likes'    => number_format($item['statistics']['likeCount'], 0, '.', ','),
@@ -88,17 +97,7 @@ class YouTubePlugin extends UrlPlugin
         $response =
             "\x02\x0301,00You\x0300,04Tube\x03  %title\x02 (%duration), \x02%views\x02 views,".
             " \x0303\x02▲\x02 %likes \x0304\x02▼\x02 %dislikes\x03";
-        $writeStream->ircPrivmsg($channel, strtr($response, $replace));
-    }
-
-    /**
-     * Strips video URL, preventing bot wars.
-     * @param string $title
-     * @return string
-     */
-    protected function stripUrl($title)
-    {
-        return preg_replace($this->getMessagePattern(), '', $title);
+        $context->send(strtr($response, $replace));
     }
 
     /**

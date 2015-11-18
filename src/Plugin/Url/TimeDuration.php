@@ -3,6 +3,10 @@ namespace Phoebe\Plugin\Url;
 
 class TimeDuration
 {
+    /**
+     * @param int $seconds
+     * @return string
+     */
     public static function get($seconds)
     {
         $hours   = intval($seconds/3600);
@@ -17,6 +21,10 @@ class TimeDuration
         return $result;
     }
 
+    /**
+     * @param \DateInterval $interval
+     * @return string
+     */
     public static function format(\DateInterval $interval)
     {
         $string = $interval->format('%I:%S');
