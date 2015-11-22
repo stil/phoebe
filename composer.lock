@@ -4,9 +4,79 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "c40114d09efe5570d3f4d6988f9bf024",
-    "content-hash": "252dfbbe9d53fec85656c79505cbb254",
+    "hash": "a79c70467f0249b85196e02fc37c3f6b",
+    "content-hash": "34abf4d19dab77463848eeaeee4b3761",
     "packages": [
+        {
+            "name": "doctrine/cache",
+            "version": "v1.5.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/doctrine/cache.git",
+                "reference": "2b9cec5a5e722010cbebc91713d4c11eaa064d5e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/doctrine/cache/zipball/2b9cec5a5e722010cbebc91713d4c11eaa064d5e",
+                "reference": "2b9cec5a5e722010cbebc91713d4c11eaa064d5e",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.2"
+            },
+            "conflict": {
+                "doctrine/common": ">2.2,<2.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": ">=3.7",
+                "predis/predis": "~1.0",
+                "satooshi/php-coveralls": "~0.6"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.5.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Doctrine\\Common\\Cache\\": "lib/Doctrine/Common/Cache"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Roman Borschel",
+                    "email": "roman@code-factory.org"
+                },
+                {
+                    "name": "Benjamin Eberlei",
+                    "email": "kontakt@beberlei.de"
+                },
+                {
+                    "name": "Guilherme Blanco",
+                    "email": "guilhermeblanco@gmail.com"
+                },
+                {
+                    "name": "Jonathan Wage",
+                    "email": "jonwage@gmail.com"
+                },
+                {
+                    "name": "Johannes Schmitt",
+                    "email": "schmittjoh@gmail.com"
+                }
+            ],
+            "description": "Caching library offering an object-oriented API for many cache backends",
+            "homepage": "http://www.doctrine-project.org",
+            "keywords": [
+                "cache",
+                "caching"
+            ],
+            "time": "2015-11-02 18:35:48"
+        },
         {
             "name": "evenement/evenement",
             "version": "v2.0.0",
@@ -263,23 +333,23 @@
         },
         {
             "name": "phergie/phergie-irc-parser",
-            "version": "2.1.0",
+            "version": "2.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phergie/phergie-irc-parser.git",
-                "reference": "29fd291f93b0881c5fc47ae6e5e41b96e7824805"
+                "reference": "cec7ec29ea9bbad5f3d1c0e0271279b3d58fe6ce"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phergie/phergie-irc-parser/zipball/29fd291f93b0881c5fc47ae6e5e41b96e7824805",
-                "reference": "29fd291f93b0881c5fc47ae6e5e41b96e7824805",
+                "url": "https://api.github.com/repos/phergie/phergie-irc-parser/zipball/cec7ec29ea9bbad5f3d1c0e0271279b3d58fe6ce",
+                "reference": "cec7ec29ea9bbad5f3d1c0e0271279b3d58fe6ce",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.4.2"
+                "php": ">=5.5"
             },
             "require-dev": {
-                "phpunit/phpunit": "~4.6"
+                "phergie/phergie-irc-bot-react-development": "~1.0.0"
             },
             "type": "library",
             "autoload": {
@@ -296,7 +366,7 @@
                 "irc",
                 "parser"
             ],
-            "time": "2015-07-16 16:26:41"
+            "time": "2015-11-12 15:21:51"
         },
         {
             "name": "psr/log",
@@ -729,9 +799,9 @@
     ],
     "packages-dev": [],
     "aliases": [],
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "stability-flags": [],
-    "prefer-stable": true,
+    "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
         "php": ">=5.4"

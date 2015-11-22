@@ -2,6 +2,9 @@
 namespace Phoebe\Plugin\Url;
 
 use cURL\Request;
+use Doctrine\Common\Cache\ArrayCache;
+use Doctrine\Common\Cache\Cache;
+use Doctrine\Common\Cache\VoidCache;
 use Phoebe\Event\Event;
 use Phoebe\FloodProtection\RateLimit;
 use Phoebe\FloodProtection\Throttling;
@@ -21,6 +24,11 @@ abstract class UrlPlugin implements UrlPluginInterface, PluginInterface
     protected $throttling;
 
     /**
+     * @var Cache
+     */
+    protected $cacheDriver;
+
+    /**
      * @param HttpAsyncPlugin $async
      */
     public function __construct(HttpAsyncPlugin $async)
@@ -29,6 +37,8 @@ abstract class UrlPlugin implements UrlPluginInterface, PluginInterface
 
         $this->throttling = new Throttling();
         $this->throttling->addRateLimit(new RateLimit(2, 10));
+
+        $this->cacheDriver = new ArrayCache();
     }
 
     /**
@@ -64,6 +74,22 @@ abstract class UrlPlugin implements UrlPluginInterface, PluginInterface
     public function setThrottling(Throttling $throttling)
     {
         $this->throttling = $throttling;
+    }
+
+    /**
+     * @return Cache
+     */
+    public function getCacheDriver()
+    {
+        return $this->cacheDriver instanceof Cache ? $this->cacheDriver : new VoidCache();
+    }
+
+    /**
+     * @param Cache $cacheDriver
+     */
+    public function setCacheDriver($cacheDriver)
+    {
+        $this->cacheDriver = $cacheDriver;
     }
 
     /**

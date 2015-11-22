@@ -44,6 +44,12 @@ class YouTubePlugin extends UrlPlugin
     {
         $videoId = $matches[1];
 
+        if ($item = $this->getCacheDriver()->fetch($videoId)) {
+            $context->getLogger()->debug("Using cached entry for YouTube video $videoId.");
+            $this->generateResponse($item, $context);
+            return;
+        }
+
         $query = http_build_query([
             'id' => $videoId,
             'part' => 'snippet,contentDetails,statistics',
@@ -51,8 +57,8 @@ class YouTubePlugin extends UrlPlugin
         ]);
 
         $req = new cURL\Request('https://www.googleapis.com/youtube/v3/videos?' . $query);
-        $req->addListener('complete', function (cURL\Event $event) use ($context) {
-            $this->onRequestComplete($event, $context);
+        $req->addListener('complete', function (cURL\Event $event) use ($videoId, $context) {
+            $this->onRequestComplete($event, $videoId, $context);
         });
 
         $this->sendRequest($req);
@@ -60,9 +66,10 @@ class YouTubePlugin extends UrlPlugin
 
     /**
      * @param cURL\Event $event
+     * @param string $videoId
      * @param ChannelContext $context
      */
-    public function onRequestComplete(cURL\Event $event, ChannelContext $context)
+    protected function onRequestComplete(cURL\Event $event, $videoId, ChannelContext $context)
     {
         $res = $event->response;
         $code = $res->getInfo(CURLINFO_HTTP_CODE);
@@ -74,11 +81,20 @@ class YouTubePlugin extends UrlPlugin
 
         $feed = json_decode($feed, true);
 
-        if (!isset($feed['items'][0])) {
-            return;
+        if (isset($feed['items'][0])) {
+            $item = $feed['items'][0];
+            $context->getLogger()->debug("Caching YouTube video $videoId.");
+            $this->getCacheDriver()->save($videoId, $item, 3600);
+            $this->generateResponse($item, $context);
         }
+    }
 
-        $item = $feed['items'][0];
+    /**
+     * @param array $item
+     * @param ChannelContext $context
+     */
+    protected function generateResponse(array $item, ChannelContext $context)
+    {
         $duration = new \DateInterval($item['contentDetails']['duration']);
 
         if (preg_match(self::$anyUrlPattern, $item['snippet']['title'])) {
