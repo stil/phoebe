@@ -11,7 +11,13 @@
     },
     "autoload": {
         "psr-4": {
-            "Phoebe\\": ["src/", "tests/"]
+            "Phoebe\\": [
+                "src/",
+                "tests/"
+            ],
+            "Phoebe\\Examples\\": [
+                "examples/src/"
+            ]
         }
     }
 }
