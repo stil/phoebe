@@ -3,7 +3,7 @@ Phoebe
 Phoebe is an IRC bot skeleton based on Phergie components.
 The main advantage over Phergie 2 is its flexibility, which could be achieved with PHP namespaces.
 
-####Table of contents
+#### Table of contents
 * [Examples of use](#examples-of-use)
  * [Simple Phoebe bot](#simple-phoebe-bot)
  * [Multiple IRC networks](#multiple-irc-networks)
@@ -14,9 +14,9 @@ The main advantage over Phergie 2 is its flexibility, which could be achieved wi
 * [Using Timers](#using-timers)
 
 
-##Examples of use
+## Examples of use
 
-###Simple Phoebe bot
+### Simple Phoebe bot
 ```php
 <?php
 require __DIR__.'/vendor/autoload.php';
@@ -49,7 +49,7 @@ $phoebe->addConnection($freenode);
 $phoebe->run();
 ```
 
-###Multiple IRC networks
+### Multiple IRC networks
 ```php
 <?php
 require __DIR__.'/vendor/autoload.php';
@@ -122,7 +122,7 @@ $events->addSubscriber(new PingPongPlugin());
 $phoebe->run();
 ```
 
-##Event object
+## Event object
 Below you can check which methods are available at different events
 
 | Method / event name         | `irc.received.*` | `irc.sent` | `connection.error` |
@@ -134,9 +134,9 @@ Below you can check which methods are available at different events
 | `getLogger()`               | yes              | yes        | yes                |
 | `getWriteStream()`          | yes              | no         | no                 |          
 
-##Plugins
+## Plugins
 
-###List of plugins
+### List of plugins
 * [`Phoebe\Plugin\PingPong\PingPongPlugin`](https://github.com/stil/phoebe/blob/master/src/Phoebe/Plugin/PingPong/PingPongPlugin.php) - keeps connection alive by responding to server PING messages
 * [`Phoebe\Plugin\UserInfo\UserInfoPlugin`](https://github.com/stil/phoebe/blob/master/src/Phoebe/Plugin/UserInfo/UserInfoPlugin.php) - tracks information on users joining and parting the channels and their flags (+o, +v etc.)
 * [`Phoebe\Plugin\AutoJoin\AutoJoinPlugin`](https://github.com/stil/phoebe/blob/master/src/Phoebe/Plugin/AutoJoin/AutoJoinPlugin.php) - allows you to configure easily channels which have to be joined on startup
@@ -146,7 +146,7 @@ Below you can check which methods are available at different events
 
 Do you know plugins worth spreading? Add them to list above through pull request! (but keep similiar form: class name with link - description)
 
-###Creating custom plugins
+### Creating custom plugins
 Plugin class has just to implement `getSubscribedEvents()` method.
 
 Here is example of simple plugin:
@@ -178,7 +178,7 @@ class HelloPlugin implements PluginInterface
 }
 ```
 
-##Using Timers
+## Using Timers
 There are situations, when you need to delay execution of particular function. Thanks to Timers class it is very easy in Phoebe.
 
 Below you can see how to reconnect to IRC with short delay.
